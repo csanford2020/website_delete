@@ -1,0 +1,162 @@
+---
+title: 'Palmer Penguins visulization '
+author: ''
+date: '2022-02-09'
+slug: palmer-penguins-visulization
+categories:
+  - R
+tags:
+  - penguins
+  - GGPLOT2
+---
+## Palmer Penguins
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+glimpse(penguins)
+```
+
+
+```{r warning=FALSE}
+```
+
+
+```{r warning=FALSE}
+```
+
+
+```{r warning=FALSE}
+```
+> library(tidyverse)
+-- Attaching packages ---------------- tidyverse 1.3.1 --
+v ggplot2 3.3.5     v purrr   0.3.4
+v tibble  3.1.6     v dplyr   1.0.7
+v tidyr   1.2.0     v stringr 1.4.0
+v readr   2.1.2     v forcats 0.5.1
+-- Conflicts ------------------- tidyverse_conflicts() --
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()
+> 
+> library(tidyverse)
+> 
+> library(palmerpenguins)
+Error in library(palmerpenguins) : 
+  there is no package called ‘palmerpenguins’
+> library(tidyverse)
+> library(palmerpenguins)
+Error in library(palmerpenguins) : 
+  there is no package called ‘palmerpenguins’
+> glimpse(penguins)
+Error in glimpse(penguins) : object 'penguins' not found
+> install.packages("palmerpenguins")
+WARNING: Rtools is required to build R packages but is not currently installed. Please download and install the appropriate version of Rtools before proceeding:
+
+https://cran.rstudio.com/bin/windows/Rtools/
+Installing package into ‘C:/Users/cmsan/OneDrive/Documents/R/win-library/4.1’
+(as ‘lib’ is unspecified)
+trying URL 'https://cran.rstudio.com/bin/windows/contrib/4.1/palmerpenguins_0.1.0.zip'
+Content type 'application/zip' length 3003085 bytes (2.9 MB)
+downloaded 2.9 MB
+
+package ‘palmerpenguins’ successfully unpacked and MD5 sums checked
+
+The downloaded binary packages are in
+	C:\Users\cmsan\AppData\Local\Temp\RtmpCoH3n2\downloaded_packages
+> 
+> library(tidyverse)
+> library(palmerpenguins)
+> glimpse(penguins)
+Rows: 344
+Columns: 8
+$ species           <fct> Adelie, Adelie, Adelie, ~
+$ island            <fct> Torgersen, Torgersen, To~
+$ bill_length_mm    <dbl> 39.1, 39.5, 40.3, NA, 36~
+$ bill_depth_mm     <dbl> 18.7, 17.4, 18.0, NA, 19~
+$ flipper_length_mm <int> 181, 186, 195, NA, 193, ~
+$ body_mass_g       <int> 3750, 3800, 3250, NA, 34~
+$ sex               <fct> male, female, female, NA~
+$ year              <int> 2007, 2007, 2007, 2007, ~
+> 
+> 
+> ## Scatter plot
+> ggplot(data = penguins, 
++        mapping = aes(x = bill_depth_mm, y = bill_length_mm,
++                      colour = species)) +
++     geom_point() +
++     labs(title = "Bill depth and length",
++          subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
++          x = "Bill depth (mm)", y = "Bill length (mm)",
++          colour = "Species")
+Warning message:
+Removed 2 rows containing missing values (geom_point). 
+> library(tidyverse)
+> library(palmerpenguins)
+> glimpse(penguins)
+Rows: 344
+Columns: 8
+$ species           <fct> Adelie, Adelie, Adelie, ~
+$ island            <fct> Torgersen, Torgersen, To~
+$ bill_length_mm    <dbl> 39.1, 39.5, 40.3, NA, 36~
+$ bill_depth_mm     <dbl> 18.7, 17.4, 18.0, NA, 19~
+$ flipper_length_mm <int> 181, 186, 195, NA, 193, ~
+$ body_mass_g       <int> 3750, 3800, 3250, NA, 34~
+$ sex               <fct> male, female, female, NA~
+$ year              <int> 2007, 2007, 2007, 2007, ~
+> ggplot(data = penguins, 
++        mapping = aes(x = bill_depth_mm, y = bill_length_mm,
++                      colour = species)) +
++     geom_point() +
++     labs(title = "Bill depth and length",
++          subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
++          x = "Bill depth (mm)", y = "Bill length (mm)",
++          colour = "Species")
+Warning message:
+Removed 2 rows containing missing values (geom_point). 
+> ggplot(data = penguins,
++        mapping = aes(x = bill_depth_mm,
++                      y = bill_length_mm,
++                      colour = species)) +
++     geom_point() +
++     labs(title = "Bill depth and length",
++          subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
++          x = "Bill depth (mm)", y = "Bill length (mm)",
++          colour = "Species",
++          caption = "Source: Palmer Station LTER / palmerpenguins package") +
++     scale_colour_viridis_d()
+Warning message:
+Removed 2 rows containing missing values (geom_point). 
+> Start with the penguins data frame, map bill depth to the x-axis and map bill length to the y-axis. Represent each observation with a point and map species to the colour of each point. Title the plot "Bill depth and length", add the subtitle "Dimensions for Adelie, Chinstrap, and Gentoo Penguins", label the x and y axes as "Bill depth (mm)" and "Bill length (mm)", respectively, label the legend "Species", and add a caption for the data source. Finally, use a discrete colour scale that is designed to be perceived by viewers with common forms of colour blindness.
+Error: unexpected symbol in "Start with"
+> ## Aesthetics 
+> ggplot(penguins,
++        aes(x = bill_depth_mm, 
++            y = bill_length_mm,
++            colour = species,
++            shape = species,
++            size = body_mass_g,
++            alpha = flipper_length_mm)) +
++     geom_point() +
++     scale_colour_viridis_d()
+Warning message:
+Removed 2 rows containing missing values (geom_point). 
+> ## Faceting 
+> ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
++     geom_point() +
++     facet_grid(species ~ island)
+Warning message:
+Removed 2 rows containing missing values (geom_point). 
+> ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
++     geom_point() +
++     facet_grid(species ~ sex)
+Warning message:
+Removed 2 rows containing missing values (geom_point). 
+> ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
++     geom_point() +
++     facet_wrap(~ species)
+Warning message:
+Removed 2 rows containing missing values (geom_point). 
+> ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
++     geom_point() +
++     facet_wrap(~ species, ncol = 2)
+Warning message:
+Removed 2 rows containing missing values (geom_point). 
