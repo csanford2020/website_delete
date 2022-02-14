@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>penguins on A Hugo website</title>
+    <link>/tags/penguins/</link>
+    <description>Recent content in penguins on A Hugo website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 09 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="/tags/penguins/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Palmer Penguins visulization </title>
+      <link>/2022/02/09/palmer-penguins-visulization/</link>
+      <pubDate>Wed, 09 Feb 2022 00:00:00 +0000</pubDate>
+      
+      <guid>/2022/02/09/palmer-penguins-visulization/</guid>
+      <description>Palmer Penguinslibrary(tidyverse)## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --## v ggplot2 3.3.5 v purrr 0.3.4## v tibble 3.1.6 v dplyr 1.0.7## v tidyr 1.2.0 v stringr 1.4.0## v readr 2.1.2 v forcats 0.5.1## -- Conflicts ------------------------------------------ tidyverse_conflicts() --## x dplyr::filter() masks stats::filter()## x dplyr::lag() masks stats::lag()library(palmerpenguins)glimpse(penguins)## Rows: 344## Columns: 8## $ species &amp;lt;fct&amp;gt; Adelie, Adelie, Adelie, Adelie, Adelie, Adelie, Adel~## $ island &amp;lt;fct&amp;gt; Torgersen, Torgersen, Torgersen, Torgersen, Torgerse~## $ bill_length_mm &amp;lt;dbl&amp;gt; 39.</description>
+    </item>
+    
+  </channel>
+</rss>

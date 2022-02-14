@@ -1,0 +1,44 @@
+---
+title: Tidyverse Grammar
+date: '2022-02-14'
+slug: tidyverse-grammar
+categories:
+  - tidyverse
+  - data wrangling
+tags:
+  - tidyverse
+  - R Markdown
+---
+## Import file from GitHUb
+```
+## call library
+```{r}
+library(tidyverse)
+```
+## call hotels
+```{r}
+url <- "https://github.com/csanford2020/tidyverse/blob/main/hotels.csv?raw=true"
+hotels <- read_csv(url)
+names(hotels)
+
+```
+## summary of variables
+```{r}
+glimpse(hotels)
+```
+## selecting a single column
+```{r}
+select(hotels, lead_time)
+
+```
+## selecting multiple colums 
+```{r}
+select(hotels, hotel, lead_time)
+```
+## data Wrangling 
+```{r}
+hotels %>% 
+  select(hotel, lead_time) %>%
+  arrange(desc(lead_time))
+```
+

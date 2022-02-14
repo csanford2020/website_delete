@@ -1,0 +1,35 @@
+---
+title: Visualising Categorical data
+author: ''
+date: '2022-02-09'
+slug: visualising-categorical-data
+categories:
+  - R
+  - GGPLOT2
+tags:
+  - GGPLOT2
+---
+## Call Libraries 
+```{r}
+library(tidyverse)
+library(openintro)
+loans <- loans_full_schema %>%
+  select(loan_amount, interest_rate, term, grade, 
+         state, annual_income, homeownership, debt_to_income)
+glimpse(loans)
+```ggplot(loans, aes(x = homeownership)) +
+  geom_bar()
+ggplot(loans, aes(x = homeownership, 
+                  fill = grade)) +
+  geom_bar()
+```{r}
+## Custom graph
+ggplot(loans, aes(y = homeownership,
+                  fill = grade)) +
+  geom_bar(position = "fill") +
+  labs(
+    x = "Proportion",
+    y = "Homeownership",
+    fill = "Grade",
+    title = "Grades of Lending Club loans",
+    subtitle = "and homeownership of lendee"
