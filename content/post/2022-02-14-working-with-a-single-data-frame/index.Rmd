@@ -1,0 +1,68 @@
+---
+title: Working with a single data frame
+author: ''
+date: '2022-02-14'
+slug: working-with-a-single-data-frame
+categories:
+  - tidyverse
+tags:
+  - tidyverse
+  - R Markdown
+---
+## data 
+```{r}
+library(tidyverse)
+url <- "https://github.com/csanford2020/tidyverse/blob/main/hotels.csv?raw=true"
+hotels <- read_csv(url)
+names(hotels)
+```
+## selecting to keep variables
+```{r}
+hotels %>%
+  select(hotel, lead_time)
+```
+## select to exclude variable
+```{r}
+hotels %>%
+  select(-agent)
+```
+## select a range of variables
+```{r}
+hotels %>%
+  select(hotel:arrival_date_month)
+```
+## select variables with certain characteristics
+```{r}
+hotels %>%
+  select(starts_with("arrival"))
+hotels %>%
+  select(ends_with("type"))
+```
+## arrange in ascending and descending order
+```{r}
+hotels %>%
+  select(adults, children, babies) %>%
+  arrange(babies)
+hotels %>%
+  select(adults, children, babies) %>%
+  arrange(desc(babies))
+```
+## slice 
+```{r}
+# first five
+hotels %>%
+  slice(1:5)
+```
+## Filter 
+```{r}
+# bookings in City Hotels
+hotels %>%
+  filter(hotel == "City Hotel")
+hotels %>%
+  filter( 
+    adults == 0,
+    children >= 1
+    ) %>% 
+  select(adults, babies, children)
+```
+
