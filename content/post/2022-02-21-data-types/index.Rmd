@@ -1,0 +1,74 @@
+---
+title: Data Types
+author: ''
+date: '2022-02-21'
+slug: data-types
+categories:
+  - R
+tags:
+  - R Markdown
+---
+## cat lover data set
+```{r}
+library(tidyverse)
+url <- 'https://raw.githubusercontent.com/csanford2020/tidyverse/main/cat-lovers.csv'
+cat_lovers <- read_csv(url)
+cat_lovers
+glimpse(cat_lovers)
+cat_lovers %>%
+  mutate(
+    number_of_cats = case_when(
+      name == "Ginger Clark" ~ "2",
+      name == "Doug Bass"    ~ "3",
+      TRUE                   ~ number_of_cats
+      ),
+    number_of_cats = as.numeric(number_of_cats)
+    ) %>%
+  summarise(mean_cats = mean(number_of_cats))
+cat_lovers <- cat_lovers %>%
+  mutate(
+    number_of_cats = case_when(
+      name == "Ginger Clark" ~ "2",
+      name == "Doug Bass"    ~ "3",
+      TRUE                   ~ number_of_cats
+      ),
+    number_of_cats = as.numeric(number_of_cats)
+    )
+
+
+```
+## data hierachy 
+integer (decimals)
+logical (true or false)
+double (nondecimals)
+character (nonnumber)
+## data types -coercion
+```{r}
+typeof(TRUE)
+typeof('hello')
+typeof(1.335)
+typeof(7)
+typeof(7L)
+typeof(1:3)
+```
+## converting data types- explicit coercion
+Number vs Character
+```{r}
+x <- 1:3
+typeof(x)
+typeof(as.character(x))
+
+```
+number vs logical
+```{r}
+x <- c(TRUE, FALSE)
+x
+typeof(x)
+y <- as.numeric(x)
+y
+typeof(y)
+```
+
+
+
+

@@ -1,0 +1,119 @@
+---
+title: Data Types
+author: ''
+date: '2022-02-21'
+slug: data-types
+categories:
+  - R
+tags:
+  - R Markdown
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="cat-lover-data-set" class="section level2">
+<h2>cat lover data set</h2>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>url &lt;- &#39;https://raw.githubusercontent.com/csanford2020/tidyverse/main/cat-lovers.csv&#39;
+cat_lovers &lt;- read_csv(url)</code></pre>
+<pre><code>## Rows: 60 Columns: 3</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (3): name, number_of_cats, handedness</code></pre>
+<pre><code>## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>cat_lovers</code></pre>
+<pre><code>## # A tibble: 60 x 3
+##    name           number_of_cats handedness
+##    &lt;chr&gt;          &lt;chr&gt;          &lt;chr&gt;     
+##  1 Bernice Warren 0              left      
+##  2 Woodrow Stone  0              left      
+##  3 Willie Bass    1              left      
+##  4 Tyrone Estrada 3              left      
+##  5 Alex Daniels   3              left      
+##  6 Jane Bates     2              left      
+##  7 Latoya Simpson 1              left      
+##  8 Darin Woods    1              left      
+##  9 Agnes Cobb     0              left      
+## 10 Tabitha Grant  0              left      
+## # ... with 50 more rows</code></pre>
+<pre class="r"><code>glimpse(cat_lovers)</code></pre>
+<pre><code>## Rows: 60
+## Columns: 3
+## $ name           &lt;chr&gt; &quot;Bernice Warren&quot;, &quot;Woodrow Stone&quot;, &quot;Willie Bass&quot;, &quot;Tyro~
+## $ number_of_cats &lt;chr&gt; &quot;0&quot;, &quot;0&quot;, &quot;1&quot;, &quot;3&quot;, &quot;3&quot;, &quot;2&quot;, &quot;1&quot;, &quot;1&quot;, &quot;0&quot;, &quot;0&quot;, &quot;0&quot;, ~
+## $ handedness     &lt;chr&gt; &quot;left&quot;, &quot;left&quot;, &quot;left&quot;, &quot;left&quot;, &quot;left&quot;, &quot;left&quot;, &quot;left&quot;,~</code></pre>
+<pre class="r"><code>cat_lovers %&gt;%
+  mutate(
+    number_of_cats = case_when(
+      name == &quot;Ginger Clark&quot; ~ &quot;2&quot;,
+      name == &quot;Doug Bass&quot;    ~ &quot;3&quot;,
+      TRUE                   ~ number_of_cats
+      ),
+    number_of_cats = as.numeric(number_of_cats)
+    ) %&gt;%
+  summarise(mean_cats = mean(number_of_cats))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   mean_cats
+##       &lt;dbl&gt;
+## 1     0.833</code></pre>
+<pre class="r"><code>cat_lovers &lt;- cat_lovers %&gt;%
+  mutate(
+    number_of_cats = case_when(
+      name == &quot;Ginger Clark&quot; ~ &quot;2&quot;,
+      name == &quot;Doug Bass&quot;    ~ &quot;3&quot;,
+      TRUE                   ~ number_of_cats
+      ),
+    number_of_cats = as.numeric(number_of_cats)
+    )</code></pre>
+</div>
+<div id="data-hierachy" class="section level2">
+<h2>data hierachy</h2>
+<p>integer (decimals)
+logical (true or false)
+double (nondecimals)
+character (nonnumber)
+## data types -coercion</p>
+<pre class="r"><code>typeof(TRUE)</code></pre>
+<pre><code>## [1] &quot;logical&quot;</code></pre>
+<pre class="r"><code>typeof(&#39;hello&#39;)</code></pre>
+<pre><code>## [1] &quot;character&quot;</code></pre>
+<pre class="r"><code>typeof(1.335)</code></pre>
+<pre><code>## [1] &quot;double&quot;</code></pre>
+<pre class="r"><code>typeof(7)</code></pre>
+<pre><code>## [1] &quot;double&quot;</code></pre>
+<pre class="r"><code>typeof(7L)</code></pre>
+<pre><code>## [1] &quot;integer&quot;</code></pre>
+<pre class="r"><code>typeof(1:3)</code></pre>
+<pre><code>## [1] &quot;integer&quot;</code></pre>
+</div>
+<div id="converting-data-types--explicit-coercion" class="section level2">
+<h2>converting data types- explicit coercion</h2>
+<p>Number vs Character</p>
+<pre class="r"><code>x &lt;- 1:3
+typeof(x)</code></pre>
+<pre><code>## [1] &quot;integer&quot;</code></pre>
+<pre class="r"><code>typeof(as.character(x))</code></pre>
+<pre><code>## [1] &quot;character&quot;</code></pre>
+<p>number vs logical</p>
+<pre class="r"><code>x &lt;- c(TRUE, FALSE)
+x</code></pre>
+<pre><code>## [1]  TRUE FALSE</code></pre>
+<pre class="r"><code>typeof(x)</code></pre>
+<pre><code>## [1] &quot;logical&quot;</code></pre>
+<pre class="r"><code>y &lt;- as.numeric(x)
+y</code></pre>
+<pre><code>## [1] 1 0</code></pre>
+<pre class="r"><code>typeof(y)</code></pre>
+<pre><code>## [1] &quot;double&quot;</code></pre>
+</div>
