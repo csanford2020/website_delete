@@ -1,0 +1,87 @@
+---
+title: data classes
+author: ''
+date: '2022-02-23'
+slug: data-classes
+categories:
+  - data wrangling
+  - R
+tags:
+  - R Markdown
+---
+## factors 
+R uses factors to handle categorical variables, variables that have a fixed and known set of possible values
+
+```{r}
+x <- factor(c("BS", "MS", "PhD", "MS"))
+x
+typeof(x)
+class(x)
+```
+We can think of factors like character (level labels) and an integer (level numbers) glued together
+```{r}
+as.integer(x)
+```
+##dates 
+```{r}
+y <- as.Date("2020-01-01")
+y
+typeof(y)
+class(y)
+```
+We can think of dates like an integer (the number of days since the origin, 1 Jan 1970) and an integer (the origin) glued together
+```{r}
+as.integer(y)
+as.integer(y) / 365 # roughly 50 yrs
+```
+## Data frames 
+```{r}
+df <- data.frame(x = 1:2, y = 3:4)
+df
+typeof(df)
+class(df)
+df
+```
+## Lists 
+```{r}
+l <- list(
+  x = 1:4,
+  y = c("hi", "hello", "jello"),
+  z = c(TRUE, FALSE)
+)
+1
+sum(1)
+```
+## lists and data frames 
+A data frame is a special list containing vectors of equal length
+When we use the pull() function, we extract a vector from the data frame
+
+## call tidyverse
+```{r}
+library(tidyverse)
+url <- 'https://raw.githubusercontent.com/csanford2020/tidyverse/main/cat-lovers.csv'
+cat_lovers <- read_csv(url)
+glimpse(cat_lovers)
+ggplot(cat_lovers, mapping = aes(x = handedness)) +
+  geom_bar()
+cat_lovers %>%
+  mutate(handedness = fct_infreq(handedness)) %>%
+  ggplot(mapping = aes(x = handedness)) +
+  geom_bar()
+```
+## hotels 
+```{r}
+url <- 'https://raw.githubusercontent.com/csanford2020/tidyverse/main/hotels.csv'
+hotels <- read_csv(url)
+glimpse(hotels)
+```
+## lubridate
+lubridate is the tidyverse-friendly package that makes dealing with dates a little easier
+```{r}
+install.packages("tidyverse")
+library(lubridate)
+```
+## dates
+slide 22-the end shows how to use them..
+  
+
