@@ -1,0 +1,88 @@
+---
+title: Data IO
+author: ''
+date: '2022-02-23'
+slug: data-io
+categories: []
+tags: []
+---
+## reader 
+read_csv() - comma delimited files
+read_csv2() - semicolon separated files (common in countries where , is used as the decimal place)
+read_tsv() - tab delimited files
+read_delim() - reads in files with any delimiter
+read_fwf() - fixed width files
+...
+## readxl
+read_excel() - read xls or xlsx files
+## reading data
+```{r}
+library(tidyverse)
+url <- 'https://raw.githubusercontent.com/csanford2020/tidyverse/main/nobel.csv'
+nobel <- read_csv(url)
+nobel
+```
+## writing data
+```{r}
+df <- tribble(
+  ~x, ~y,
+  1,  "a",
+  2,  "b",
+  3,  "c"
+)
+write_csv(df, file = "example")
+read_csv("example")
+```
+## my turn
+```{r}
+library(tidyverse)
+url <- 'https://raw.githubusercontent.com/csanford2020/tidyverse/main/nobel.csv'
+nobel <- read_csv(url)
+nobel
+
+
+
+
+```
+
+## bad names
+```{r}
+library(tidyverse)
+url <- 'https://raw.githubusercontent.com/csanford2020/tidyverse/main/edibnb-badnames.csv'
+edibnb_badnames <- read_csv(url)
+edibnb_badnames
+```
+## colum types 
+type function	data type
+col_character()	character
+col_date()	date
+col_datetime()	POSIXct (date-time)
+col_double()	double (numeric)
+col_factor()	factor
+col_guess()	let readr guess (default)
+col_integer()	integer
+col_logical()	logical
+col_number()	numbers mixed with non-number characters
+col_numeric()	double or integer
+col_skip()	do not read
+col_time()	time
+
+## fav food 
+```{r}
+library(tidyverse)
+url <- 'https://raw.githubusercontent.com/csanford2020/tidyverse/main/fav-food-clean.csv'
+fav_food <- read_csv(url)
+fav_food
+```
+## other types of data 
+googlesheets4: Google Sheets
+haven: SPSS, Stata, and SAS files
+DBI, along with a database specific backend (e.g. RMySQL, RSQLite, RPostgreSQL etc): allows you to run SQL queries against a database and return a data frame
+jsonline: JSON
+xml2: xml
+rvest: web scraping
+httr: web APIs
+sparklyr: data loaded into spark
+
+
+

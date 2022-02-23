@@ -1,0 +1,206 @@
+---
+title: Data IO
+author: ''
+date: '2022-02-23'
+slug: data-io
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="reader" class="section level2">
+<h2>reader</h2>
+<p>read_csv() - comma delimited files
+read_csv2() - semicolon separated files (common in countries where , is used as the decimal place)
+read_tsv() - tab delimited files
+read_delim() - reads in files with any delimiter
+read_fwf() - fixed width files
+…
+## readxl
+read_excel() - read xls or xlsx files
+## reading data</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>url &lt;- &#39;https://raw.githubusercontent.com/csanford2020/tidyverse/main/nobel.csv&#39;
+nobel &lt;- read_csv(url)</code></pre>
+<pre><code>## Rows: 935 Columns: 26</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr  (21): firstname, surname, category, affiliation, city, country, gender,...
+## dbl   (3): id, year, share
+## date  (2): born_date, died_date</code></pre>
+<pre><code>## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>nobel</code></pre>
+<pre><code>## # A tibble: 935 x 26
+##       id firstname   surname  year category affiliation city  country born_date 
+##    &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;   &lt;date&gt;    
+##  1     1 Wilhelm Co~ Röntgen  1901 Physics  Munich Uni~ Muni~ Germany 1845-03-27
+##  2     2 Hendrik A.  Lorentz  1902 Physics  Leiden Uni~ Leid~ Nether~ 1853-07-18
+##  3     3 Pieter      Zeeman   1902 Physics  Amsterdam ~ Amst~ Nether~ 1865-05-25
+##  4     4 Henri       Becque~  1903 Physics  École Poly~ Paris France  1852-12-15
+##  5     5 Pierre      Curie    1903 Physics  École muni~ Paris France  1859-05-15
+##  6     6 Marie       Curie    1903 Physics  &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1867-11-07
+##  7     6 Marie       Curie    1911 Chemist~ Sorbonne U~ Paris France  1867-11-07
+##  8     8 Lord        Raylei~  1904 Physics  Royal Inst~ Lond~ United~ 1842-11-12
+##  9     9 Philipp     Lenard   1905 Physics  Kiel Unive~ Kiel  Germany 1862-06-07
+## 10    10 J.J.        Thomson  1906 Physics  University~ Camb~ United~ 1856-12-18
+## # ... with 925 more rows, and 17 more variables: died_date &lt;date&gt;,
+## #   gender &lt;chr&gt;, born_city &lt;chr&gt;, born_country &lt;chr&gt;, born_country_code &lt;chr&gt;,
+## #   died_city &lt;chr&gt;, died_country &lt;chr&gt;, died_country_code &lt;chr&gt;,
+## #   overall_motivation &lt;chr&gt;, share &lt;dbl&gt;, motivation &lt;chr&gt;,
+## #   born_country_original &lt;chr&gt;, born_city_original &lt;chr&gt;,
+## #   died_country_original &lt;chr&gt;, died_city_original &lt;chr&gt;, city_original &lt;chr&gt;,
+## #   country_original &lt;chr&gt;</code></pre>
+</div>
+<div id="writing-data" class="section level2">
+<h2>writing data</h2>
+<pre class="r"><code>df &lt;- tribble(
+  ~x, ~y,
+  1,  &quot;a&quot;,
+  2,  &quot;b&quot;,
+  3,  &quot;c&quot;
+)
+write_csv(df, file = &quot;example&quot;)
+read_csv(&quot;example&quot;)</code></pre>
+<pre><code>## Rows: 3 Columns: 2</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (1): y
+## dbl (1): x</code></pre>
+<pre><code>## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre><code>## # A tibble: 3 x 2
+##       x y    
+##   &lt;dbl&gt; &lt;chr&gt;
+## 1     1 a    
+## 2     2 b    
+## 3     3 c</code></pre>
+</div>
+<div id="my-turn" class="section level2">
+<h2>my turn</h2>
+<pre class="r"><code>library(tidyverse)
+url &lt;- &#39;https://raw.githubusercontent.com/csanford2020/tidyverse/main/nobel.csv&#39;
+nobel &lt;- read_csv(url)</code></pre>
+<pre><code>## Rows: 935 Columns: 26</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr  (21): firstname, surname, category, affiliation, city, country, gender,...
+## dbl   (3): id, year, share
+## date  (2): born_date, died_date</code></pre>
+<pre><code>## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>nobel</code></pre>
+<pre><code>## # A tibble: 935 x 26
+##       id firstname   surname  year category affiliation city  country born_date 
+##    &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;   &lt;date&gt;    
+##  1     1 Wilhelm Co~ Röntgen  1901 Physics  Munich Uni~ Muni~ Germany 1845-03-27
+##  2     2 Hendrik A.  Lorentz  1902 Physics  Leiden Uni~ Leid~ Nether~ 1853-07-18
+##  3     3 Pieter      Zeeman   1902 Physics  Amsterdam ~ Amst~ Nether~ 1865-05-25
+##  4     4 Henri       Becque~  1903 Physics  École Poly~ Paris France  1852-12-15
+##  5     5 Pierre      Curie    1903 Physics  École muni~ Paris France  1859-05-15
+##  6     6 Marie       Curie    1903 Physics  &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1867-11-07
+##  7     6 Marie       Curie    1911 Chemist~ Sorbonne U~ Paris France  1867-11-07
+##  8     8 Lord        Raylei~  1904 Physics  Royal Inst~ Lond~ United~ 1842-11-12
+##  9     9 Philipp     Lenard   1905 Physics  Kiel Unive~ Kiel  Germany 1862-06-07
+## 10    10 J.J.        Thomson  1906 Physics  University~ Camb~ United~ 1856-12-18
+## # ... with 925 more rows, and 17 more variables: died_date &lt;date&gt;,
+## #   gender &lt;chr&gt;, born_city &lt;chr&gt;, born_country &lt;chr&gt;, born_country_code &lt;chr&gt;,
+## #   died_city &lt;chr&gt;, died_country &lt;chr&gt;, died_country_code &lt;chr&gt;,
+## #   overall_motivation &lt;chr&gt;, share &lt;dbl&gt;, motivation &lt;chr&gt;,
+## #   born_country_original &lt;chr&gt;, born_city_original &lt;chr&gt;,
+## #   died_country_original &lt;chr&gt;, died_city_original &lt;chr&gt;, city_original &lt;chr&gt;,
+## #   country_original &lt;chr&gt;</code></pre>
+</div>
+<div id="bad-names" class="section level2">
+<h2>bad names</h2>
+<pre class="r"><code>library(tidyverse)
+url &lt;- &#39;https://raw.githubusercontent.com/csanford2020/tidyverse/main/edibnb-badnames.csv&#39;
+edibnb_badnames &lt;- read_csv(url)</code></pre>
+<pre><code>## Rows: 13245 Columns: 10</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (2): neighbourhood, listing_url
+## dbl (8): ID, Price, accommodates, Number of bathrooms, Number of Bedrooms, n...</code></pre>
+<pre><code>## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>edibnb_badnames</code></pre>
+<pre><code>## # A tibble: 13,245 x 10
+##       ID Price neighbourhood accommodates `Number of bathrooms` `Number of Bed~`
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;                &lt;dbl&gt;                 &lt;dbl&gt;            &lt;dbl&gt;
+##  1 15420    80 New Town                 2                   1                  1
+##  2 24288   115 Southside                4                   1.5                2
+##  3 38628    46 &lt;NA&gt;                     2                   1                  0
+##  4 44552    32 Leith                    2                   1                  1
+##  5 47616   100 Southside                2                   1                  1
+##  6 48645    71 Old Town                 3                   1                  1
+##  7 51505   175 New Town                 5                   1                  2
+##  8 54188   150 West End                 5                   1                  3
+##  9 55881   139 Leith                    6                   1                  4
+## 10 58682   190 West End                10                   2                  4
+## # ... with 13,235 more rows, and 4 more variables: `n beds` &lt;dbl&gt;,
+## #   `Review Scores Rating` &lt;dbl&gt;, `Number of reviews` &lt;dbl&gt;, listing_url &lt;chr&gt;</code></pre>
+</div>
+<div id="colum-types" class="section level2">
+<h2>colum types</h2>
+<p>type function data type
+col_character() character
+col_date() date
+col_datetime() POSIXct (date-time)
+col_double() double (numeric)
+col_factor() factor
+col_guess() let readr guess (default)
+col_integer() integer
+col_logical() logical
+col_number() numbers mixed with non-number characters
+col_numeric() double or integer
+col_skip() do not read
+col_time() time</p>
+</div>
+<div id="fav-food" class="section level2">
+<h2>fav food</h2>
+<pre class="r"><code>library(tidyverse)
+url &lt;- &#39;https://raw.githubusercontent.com/csanford2020/tidyverse/main/fav-food-clean.csv&#39;
+fav_food &lt;- read_csv(url)</code></pre>
+<pre><code>## Rows: 5 Columns: 6</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (4): full_name, favourite_food, meal_plan, ses
+## dbl (2): student_id, age</code></pre>
+<pre><code>## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>fav_food</code></pre>
+<pre><code>## # A tibble: 5 x 6
+##   student_id full_name        favourite_food     meal_plan             age ses  
+##        &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt;              &lt;chr&gt;               &lt;dbl&gt; &lt;chr&gt;
+## 1          1 Sunil Huffmann   Strawberry yoghurt Lunch only              4 High 
+## 2          2 Barclay Lynn     French fries       Lunch only              5 Midd~
+## 3          3 Jayendra Lyne    &lt;NA&gt;               Breakfast and lunch     7 Low  
+## 4          4 Leon Rossini     Anchovies          Lunch only             NA Midd~
+## 5          5 Chidiegwu Dunkel Pizza              Breakfast and lunch     5 High</code></pre>
+</div>
+<div id="other-types-of-data" class="section level2">
+<h2>other types of data</h2>
+<p>googlesheets4: Google Sheets
+haven: SPSS, Stata, and SAS files
+DBI, along with a database specific backend (e.g. RMySQL, RSQLite, RPostgreSQL etc): allows you to run SQL queries against a database and return a data frame
+jsonline: JSON
+xml2: xml
+rvest: web scraping
+httr: web APIs
+sparklyr: data loaded into spark</p>
+</div>
