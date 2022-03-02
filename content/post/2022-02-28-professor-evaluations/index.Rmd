@@ -1,0 +1,73 @@
+---
+title: 'Professor Evaluations '
+author: ''
+date: '2022-02-28'
+slug: professor-evaluations
+categories: []
+tags: []
+---
+## preliminaries 
+``` {r}
+library(moderndive)
+library(tidyverse)
+library(skimr)
+library(gapminder)
+
+```
+##  Exploratory data analysis
+``` {r}
+evals_ch5 <- evals %>%
+  select(ID, score, bty_avg, age)
+glimpse(evals_ch5)
+evals_ch5 %>%
+  sample_n(size = 5)
+```
+## exploring the data
+``` {r}
+glimpse(evals_ch5)
+
+```
+## Sample the data 
+``` {r}
+evals_ch5 %>%
+  sample_n(size = 5)
+```
+## Mean and Median of BTY and Score 
+``` {r}
+evals_ch5 %>%
+  summarize(mean_bty_avg = mean(bty_avg), mean_score = mean(score),
+            median_bty_avg = median(bty_avg), median_score = median(score))
+
+```
+
+## five number summary 
+```{r}
+evals_ch5 %>% select(score, bty_avg) %>% skim()
+
+```
+## visualizing data 
+```{r}
+ggplot(evals_ch5, aes(x = bty_avg, y = score)) +
+  geom_point() +
+  labs(x = "Beauty Score", 
+       y = "Teaching Score",
+       title = "Scatterplot of relationship of teaching and beauty scores")
+
+```
+
+## adding jitter 
+```{r}
+ggplot(evals_ch5, aes(x = bty_avg, y = score)) +
+  geom_jitter() +
+  labs(x = "Beauty Score", y = "Teaching Score",
+       title = "Scatterplot of relationship of teaching and beauty scores")
+```
+
+## relationship between beauty and teaching scores 
+```{r}
+ggplot(evals_ch5, aes(x = bty_avg, y = score)) +
+  geom_point() +
+  labs(x = "Beauty Score", y = "Teaching Score",
+       title = "Relationship between teaching and beauty scores") +  
+  geom_smooth(method = "lm", se = FALSE)
+```
