@@ -1,0 +1,184 @@
+---
+title: AO1
+author: R package build
+date: '2022-03-24'
+slug: ao1
+categories: []
+tags: []
+---
+## What are the advantages and disadvantages of k-fold cross validation relative to Single Split Validation set approach?
+
+One disadvatage of the Single Split validation set approach relative to k-fold cross-validation is the validation estimate of the test error rate can be highly variable. Another disadvantage of the Single Slit validation is that only a subset of the observations are used to fit the model, so this could lead to an overestimation of the test error rate for the model's entire data set.
+
+## What are the advantages and disadvantages of k-fold cross validation relative to LOOCV?
+
+LOOCV has less bias compared to k-fold cross validation. Also, LOOCV uses all the data set instead of the train data set, so the data is not shaken up enough and can produce higher variance then the k-fold cross validation. LOOCV will also compute the same results using the same split value, whereas the k-fold cross will produce different ones because it is using a the train data set which uses different values everytime it is computed.
+
+## The Pros and Cons of bootstrapping
+
+Pros:
+
+Simple to apply bootstrapping to complex data.
+
+Since bootstrapping does not require distributional assumptions, it can provide more accurate inferences to the data.
+
+Bootstrapping is straightforward way to derive the estimates of standard errors and confidence intervals
+
+Cons:
+
+Bootstrap sampling can only tell the person things about the orginal data set.
+
+Bootstrapping does not perform bias corrections when computed
+
+## import data
+```{r}
+library(readr)
+realestateval <- read_csv("https://raw.githubusercontent.com/csanford2020/Real-Estate-Evaluation/main/Real%20estate%20valuation%20data%20set.csv")
+
+```
+## Setup 
+
+```{r}
+library(tidyverse)
+library(ISLR)
+library(boot)
+
+```
+## Cross Validation for house price of unit area and house age 
+
+```{r}
+set.seed(1)
+head(realestateval)
+```
+```{r}
+dim(realestateval)
+train_re <- sample(393, 8)
+head(train_re)
+
+```
+```{r}
+attach(realestateval)
+lm.fit <- lm(`Y house price of unit area` ~ `X2 house age`, data = realestateval, subset = train_re)
+lm.fit
+```
+```{r}
+plot(`Y house price of unit area`, `X2 house age`)
+```
+```{r}
+lm.fit.poly <- lm(`Y house price of unit area`~poly(`X2 house age`, 2), data = realestateval, subset = train_re)
+lm.fit.poly
+```
+```{r}
+mean((`Y house price of unit area` - predict(lm.fit.poly, realestateval))[-train_re]^2)
+```
+## chaning n
+```{r}
+n = 2 
+set.seed(n)
+train_re <- sample(393, 8)
+attach(realestateval)
+```
+```{r}
+lm.fit <- lm(`Y house price of unit area`~ `X2 house age`, data = realestateval, subset = train_re)
+lm.fit.poly <- lm(`Y house price of unit area`~poly(`X2 house age`, 2), data = realestateval, subset = train_re)
+lm.fit.poly
+```
+## K-cross Validation
+K = 5 for for house price of unit area and  house age
+```{r}
+K = 5
+cv.error.5 <- rep(0, 5)
+degree <- 1:5
+for(d in degree){
+  glm.fit <- glm(`Y house price of unit area`~poly(`X2 house age`, d), data = realestateval)
+  cv.error.5[d] <- cv.glm(realestateval, glm.fit, K = K)$delta[1]
+}
+cv.error.5
+```
+```{r}
+plot(degree, cv.error.5, type = "b")
+```
+## K = 10 for house price of unit area and house age
+```{r}
+K = 10
+cv.error.10 <- rep(0, 5)
+degree <- 1:5
+for(d in degree){
+  glm.fit <- glm(`Y house price of unit area`~poly(`X2 house age`, d), data = realestateval)
+  cv.error.10[d] <- cv.glm(realestateval, glm.fit, K = K)$delta[1]
+}
+cv.error.10
+```
+```{r}
+plot(degree, cv.error.10, type = "b")
+```
+##K = 5 for  house price of unit area and number of convenience stores
+```{r}
+K = 5
+cv.error.05 <- rep(0, 5)
+degree <- 1:5
+for(d in degree){
+  glm.fit <- glm(`Y house price of unit area`~poly(`X4 number of convenience stores`, d), data = realestateval)
+  cv.error.05[d] <- cv.glm(realestateval, glm.fit, K = K)$delta[1]
+}
+cv.error.05
+```
+
+```{r}
+plot(degree, cv.error.05, type = "b")
+```
+## K = 10 for for house price of unit area and number of convenience stores
+
+```{r}
+K = 10
+cv.error.010 <- rep(0, 5)
+degree <- 1:5
+for(d in degree){
+  glm.fit <- glm(`Y house price of unit area`~poly(`X4 number of convenience stores`, d), data = realestateval)
+  cv.error.010[d] <- cv.glm(realestateval, glm.fit, K = K)$delta[1]
+}
+cv.error.010
+```
+```{r}
+plot(degree, cv.error.010, type = "b")
+```
+## BootStrap
+house price of unit area and house age
+```{r}
+boot.fn <- function(realestate, index){
+  return(coef(lm(`Y house price of unit area`~`X2 house age`, data = realestateval, subset = index)))
+}
+
+boot.fn(realestateval, 1:392)
+```
+```{r}
+set.seed(1)
+boot.fn(realestateval, sample(392, 392, replace = T))
+```
+```{r}
+boot.out1 <- boot(realestateval, boot.fn, 1000)
+plot(boot.out1)
+```
+```{r}
+boot.out1.2 <- boot(realestateval, boot.fn, 10000)
+plot(boot.out1.2)
+```
+## House price of unit area and number of convenience stores
+```{r}
+boot.fn <- function(realestateval, index){
+  return(coef(lm(`Y house price of unit area`~`X4 number of convenience stores`, data = realestateval, subset = index)))
+}
+boot.fn(realestateval, 1:350)
+```
+```{r}
+set.seed(1)
+boot.fn(realestateval, sample(392, 392, replace = T))
+```
+```{r}
+boot.out2 <- boot(realestateval, boot.fn, 1000)
+plot(boot.out2)
+```
+```{r}
+boot.out2 <- boot(realestateval, boot.fn, 5000)
+plot(boot.out2)
+```

@@ -1,0 +1,213 @@
+---
+title: AO1
+author: R package build
+date: '2022-03-24'
+slug: ao1
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="what-are-the-advantages-and-disadvantages-of-k-fold-cross-validation-relative-to-single-split-validation-set-approach" class="section level2">
+<h2>What are the advantages and disadvantages of k-fold cross validation relative to Single Split Validation set approach?</h2>
+<p>One disadvatage of the Single Split validation set approach relative to k-fold cross-validation is the validation estimate of the test error rate can be highly variable. Another disadvantage of the Single Slit validation is that only a subset of the observations are used to fit the model, so this could lead to an overestimation of the test error rate for the model’s entire data set.</p>
+</div>
+<div id="what-are-the-advantages-and-disadvantages-of-k-fold-cross-validation-relative-to-loocv" class="section level2">
+<h2>What are the advantages and disadvantages of k-fold cross validation relative to LOOCV?</h2>
+<p>LOOCV has less bias compared to k-fold cross validation. Also, LOOCV uses all the data set instead of the train data set, so the data is not shaken up enough and can produce higher variance then the k-fold cross validation. LOOCV will also compute the same results using the same split value, whereas the k-fold cross will produce different ones because it is using a the train data set which uses different values everytime it is computed.</p>
+</div>
+<div id="the-pros-and-cons-of-bootstrapping" class="section level2">
+<h2>The Pros and Cons of bootstrapping</h2>
+<p>Pros:</p>
+<p>Simple to apply bootstrapping to complex data.</p>
+<p>Since bootstrapping does not require distributional assumptions, it can provide more accurate inferences to the data.</p>
+<p>Bootstrapping is straightforward way to derive the estimates of standard errors and confidence intervals</p>
+<p>Cons:</p>
+<p>Bootstrap sampling can only tell the person things about the orginal data set.</p>
+<p>Bootstrapping does not perform bias corrections when computed</p>
+</div>
+<div id="import-data" class="section level2">
+<h2>import data</h2>
+<pre class="r"><code>library(readr)
+realestateval &lt;- read_csv(&quot;https://raw.githubusercontent.com/csanford2020/Real-Estate-Evaluation/main/Real%20estate%20valuation%20data%20set.csv&quot;)</code></pre>
+<pre><code>## Rows: 414 Columns: 8</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## dbl (8): No, X1 transaction date, X2 house age, X3 distance to the nearest M...</code></pre>
+<pre><code>## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div id="setup" class="section level2">
+<h2>Setup</h2>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v dplyr   1.0.7
+## v tibble  3.1.6     v stringr 1.4.0
+## v tidyr   1.2.0     v forcats 0.5.1
+## v purrr   0.3.4</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ISLR)</code></pre>
+<pre><code>## Warning: package &#39;ISLR&#39; was built under R version 4.1.3</code></pre>
+<pre class="r"><code>library(boot)</code></pre>
+</div>
+<div id="cross-validation-for-house-price-of-unit-area-and-house-age" class="section level2">
+<h2>Cross Validation for house price of unit area and house age</h2>
+<pre class="r"><code>set.seed(1)
+head(realestateval)</code></pre>
+<pre><code>## # A tibble: 6 x 8
+##      No `X1 transaction date` `X2 house age` `X3 distance to ~` `X4 number of ~`
+##   &lt;dbl&gt;                 &lt;dbl&gt;          &lt;dbl&gt;              &lt;dbl&gt;            &lt;dbl&gt;
+## 1     1                 2013.           32                 84.9               10
+## 2     2                 2013.           19.5              307.                 9
+## 3     3                 2014.           13.3              562.                 5
+## 4     4                 2014.           13.3              562.                 5
+## 5     5                 2013.            5                391.                 5
+## 6     6                 2013.            7.1             2175.                 3
+## # ... with 3 more variables: `X5 latitude` &lt;dbl&gt;, `X6 longitude` &lt;dbl&gt;,
+## #   `Y house price of unit area` &lt;dbl&gt;</code></pre>
+<pre class="r"><code>dim(realestateval)</code></pre>
+<pre><code>## [1] 414   8</code></pre>
+<pre class="r"><code>train_re &lt;- sample(393, 8)
+head(train_re)</code></pre>
+<pre><code>## [1] 324 167 129 299 270 187</code></pre>
+<pre class="r"><code>attach(realestateval)
+lm.fit &lt;- lm(`Y house price of unit area` ~ `X2 house age`, data = realestateval, subset = train_re)
+lm.fit</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = `Y house price of unit area` ~ `X2 house age`, data = realestateval, 
+##     subset = train_re)
+## 
+## Coefficients:
+##    (Intercept)  `X2 house age`  
+##        45.2918         -0.1697</code></pre>
+<pre class="r"><code>plot(`Y house price of unit area`, `X2 house age`)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>lm.fit.poly &lt;- lm(`Y house price of unit area`~poly(`X2 house age`, 2), data = realestateval, subset = train_re)
+lm.fit.poly</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = `Y house price of unit area` ~ poly(`X2 house age`, 
+##     2), data = realestateval, subset = train_re)
+## 
+## Coefficients:
+##              (Intercept)  poly(`X2 house age`, 2)1  poly(`X2 house age`, 2)2  
+##                    43.53                    -98.66                    231.88</code></pre>
+<pre class="r"><code>mean((`Y house price of unit area` - predict(lm.fit.poly, realestateval))[-train_re]^2)</code></pre>
+<pre><code>## [1] 220.7539</code></pre>
+</div>
+<div id="chaning-n" class="section level2">
+<h2>chaning n</h2>
+<pre class="r"><code>n = 2 
+set.seed(n)
+train_re &lt;- sample(393, 8)
+attach(realestateval)</code></pre>
+<pre><code>## The following objects are masked from realestateval (pos = 3):
+## 
+##     No, X1 transaction date, X2 house age, X3 distance to the nearest
+##     MRT station, X4 number of convenience stores, X5 latitude, X6
+##     longitude, Y house price of unit area</code></pre>
+<pre class="r"><code>lm.fit &lt;- lm(`Y house price of unit area`~ `X2 house age`, data = realestateval, subset = train_re)
+lm.fit.poly &lt;- lm(`Y house price of unit area`~poly(`X2 house age`, 2), data = realestateval, subset = train_re)
+lm.fit.poly</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = `Y house price of unit area` ~ poly(`X2 house age`, 
+##     2), data = realestateval, subset = train_re)
+## 
+## Coefficients:
+##              (Intercept)  poly(`X2 house age`, 2)1  poly(`X2 house age`, 2)2  
+##                    45.06                    -50.07                    158.96</code></pre>
+</div>
+<div id="k-cross-validation" class="section level2">
+<h2>K-cross Validation</h2>
+<p>K = 5 for for house price of unit area and house age</p>
+<pre class="r"><code>K = 5
+cv.error.5 &lt;- rep(0, 5)
+degree &lt;- 1:5
+for(d in degree){
+  glm.fit &lt;- glm(`Y house price of unit area`~poly(`X2 house age`, d), data = realestateval)
+  cv.error.5[d] &lt;- cv.glm(realestateval, glm.fit, K = K)$delta[1]
+}
+cv.error.5</code></pre>
+<pre><code>## [1] 177.7621 149.4534 150.5048 148.4604 150.5436</code></pre>
+<pre class="r"><code>plot(degree, cv.error.5, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+## K = 10 for house price of unit area and house age</p>
+<pre class="r"><code>K = 10
+cv.error.10 &lt;- rep(0, 5)
+degree &lt;- 1:5
+for(d in degree){
+  glm.fit &lt;- glm(`Y house price of unit area`~poly(`X2 house age`, d), data = realestateval)
+  cv.error.10[d] &lt;- cv.glm(realestateval, glm.fit, K = K)$delta[1]
+}
+cv.error.10</code></pre>
+<pre><code>## [1] 179.0120 149.6018 149.6107 149.3651 148.9079</code></pre>
+<pre class="r"><code>plot(degree, cv.error.10, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+##K = 5 for house price of unit area and number of convenience stores</p>
+<pre class="r"><code>K = 5
+cv.error.05 &lt;- rep(0, 5)
+degree &lt;- 1:5
+for(d in degree){
+  glm.fit &lt;- glm(`Y house price of unit area`~poly(`X4 number of convenience stores`, d), data = realestateval)
+  cv.error.05[d] &lt;- cv.glm(realestateval, glm.fit, K = K)$delta[1]
+}
+cv.error.05</code></pre>
+<pre><code>## [1] 125.6320 126.1485 124.9983 126.4155 124.5257</code></pre>
+<pre class="r"><code>plot(degree, cv.error.05, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-16-1.png" width="672" />
+## K = 10 for for house price of unit area and number of convenience stores</p>
+<pre class="r"><code>K = 10
+cv.error.010 &lt;- rep(0, 5)
+degree &lt;- 1:5
+for(d in degree){
+  glm.fit &lt;- glm(`Y house price of unit area`~poly(`X4 number of convenience stores`, d), data = realestateval)
+  cv.error.010[d] &lt;- cv.glm(realestateval, glm.fit, K = K)$delta[1]
+}
+cv.error.010</code></pre>
+<pre><code>## [1] 126.0371 125.0561 125.2624 125.3543 125.5595</code></pre>
+<pre class="r"><code>plot(degree, cv.error.010, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-18-1.png" width="672" />
+## BootStrap
+house price of unit area and house age</p>
+<pre class="r"><code>boot.fn &lt;- function(realestate, index){
+  return(coef(lm(`Y house price of unit area`~`X2 house age`, data = realestateval, subset = index)))
+}
+
+boot.fn(realestateval, 1:392)</code></pre>
+<pre><code>##    (Intercept) `X2 house age` 
+##     42.6017791     -0.2542933</code></pre>
+<pre class="r"><code>set.seed(1)
+boot.fn(realestateval, sample(392, 392, replace = T))</code></pre>
+<pre><code>##    (Intercept) `X2 house age` 
+##     43.4889667     -0.1974681</code></pre>
+<pre class="r"><code>boot.out1 &lt;- boot(realestateval, boot.fn, 1000)
+plot(boot.out1)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<pre class="r"><code>boot.out1.2 &lt;- boot(realestateval, boot.fn, 10000)
+plot(boot.out1.2)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-22-1.png" width="672" />
+## House price of unit area and number of convenience stores</p>
+<pre class="r"><code>boot.fn &lt;- function(realestateval, index){
+  return(coef(lm(`Y house price of unit area`~`X4 number of convenience stores`, data = realestateval, subset = index)))
+}
+boot.fn(realestateval, 1:350)</code></pre>
+<pre><code>##                       (Intercept) `X4 number of convenience stores` 
+##                         27.045973                          2.671425</code></pre>
+<pre class="r"><code>set.seed(1)
+boot.fn(realestateval, sample(392, 392, replace = T))</code></pre>
+<pre><code>##                       (Intercept) `X4 number of convenience stores` 
+##                         30.142169                          2.389209</code></pre>
+<pre class="r"><code>boot.out2 &lt;- boot(realestateval, boot.fn, 1000)
+plot(boot.out2)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<pre class="r"><code>boot.out2 &lt;- boot(realestateval, boot.fn, 5000)
+plot(boot.out2)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+</div>

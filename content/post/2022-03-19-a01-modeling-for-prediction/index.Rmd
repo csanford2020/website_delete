@@ -1,0 +1,8 @@
+---
+title: 'A01: Modeling for Prediction'
+author: ''
+date: '2022-03-19'
+slug: a01-modeling-for-prediction
+categories: []
+tags: []
+---
