@@ -1,0 +1,196 @@
+---
+title: 'A02: Regression Models'
+author: R package build
+date: '2022-03-24'
+slug: a02-regression-models
+categories: []
+tags: []
+---
+##Loading and prepaping the data
+```{r}
+library(pacman)
+library(magrittr)
+library(psych)
+library(RColorBrewer)
+library(tidyverse)
+library(boot)
+library(patchwork)
+
+```
+
+```{r}
+professorproposes <- read_csv("https://raw.githubusercontent.com/csanford2020/professor_propose/main/Professor_Proposes_Data.csv")
+```
+
+```{r}
+names(professorproposes)
+```
+
+```{r}
+summary(professorproposes)
+
+```
+
+```{r}
+df <- professorproposes %>%
+  as_tibble() %>%
+  print()
+
+```
+
+```{r}
+summary(df)
+```
+
+## Frequencies of the variables
+
+```{r}
+
+df %>% count(Cut)
+cut <- df %>%
+  ggplot() +
+  geom_bar(aes(Cut, fill = Cut)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+df %>% count(Clarity)
+clarity <- df %>%
+  ggplot() +
+  geom_bar(aes(Clarity, fill = Clarity)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+df %>% count(Certification)
+certification <- df %>%
+  ggplot() +
+  geom_bar(aes(Certification, fill = Certification)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+df %>% count(Polish)
+polish <- df %>%
+  ggplot() +
+  geom_bar(aes(Polish, fill = Polish)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+df %>% count(Symmetry)
+symmetry <- df %>%
+  ggplot() +
+  geom_bar(aes(Symmetry, fill = Symmetry)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+cut + clarity + certification + polish + symmetry
+```
+## Comparing the variables with Price
+```{r}
+carat <- ggplot(data = df, 
+       mapping = aes(x = Carat, y = Price,
+                     colour = Wholesaler)) +
+  geom_point() 
+color <- ggplot (df, aes(x = Colour, y = Price)) +
+  geom_boxplot()
+cut <- ggplot (df, aes(x = Cut, y = Price)) +
+  geom_boxplot()
+clarity <- ggplot (df, aes(x = Clarity, y = Price)) +
+  geom_boxplot()
+certification <- ggplot (df, aes(x = Certification, y = Price)) +
+  geom_boxplot()
+polish <- ggplot (df, aes(x = Polish, y = Price)) +
+  geom_boxplot()
+symmetry <- ggplot (df, aes(x = Symmetry, y = Price)) +
+  geom_boxplot()
+ carat + cut + color + clarity + certification + polish + symmetry 
+```
+
+## based off the graphs the carat size of the diamond and the color primariliy impacts the prize of  the diamond
+
+## variables that effect the Carat
+```{r}
+cut <- ggplot (df, aes(x = Cut, y = Carat)) +
+  geom_boxplot()
+color <- ggplot (df, aes(x = Colour, y = Carat)) +
+  geom_boxplot()
+clarity <- ggplot (df, aes(x = Clarity, y = Carat)) +
+  geom_boxplot()
+certification <- ggplot (df, aes(x = Certification, y = Carat)) +
+  geom_boxplot()
+polish <- ggplot (df, aes(x = Polish, y = Carat)) +
+  geom_boxplot()
+symmetry <- ggplot (df, aes(x = Symmetry, y = Carat)) +
+  geom_boxplot()
+cut +  color + clarity + certification + polish + symmetry 
+```
+# no variables have an effect of carat
+## Variables that effect Color of diamond
+```{r}
+cut <- ggplot (df, aes(x = Carat, y = Colour)) +
+  geom_boxplot()
+color <- ggplot (df, aes(x = Cut, y = Colour)) +
+  geom_boxplot()
+clarity <- ggplot (df, aes(x = Clarity, y = Colour)) +
+  geom_boxplot()
+certification <- ggplot (df, aes(x = Certification, y = Colour)) +
+  geom_boxplot()
+polish <- ggplot (df, aes(x = Polish, y = Colour)) +
+  geom_boxplot()
+symmetry <- ggplot (df, aes(x = Symmetry, y = Colour)) +
+  geom_boxplot()
+carat+ color + clarity + certification + polish + symmetry 
+
+```
+# cut and carat seems to effect the color of the diamond so I will use the carat in the linear model
+
+## linear regression
+```{r}
+lmPrice <- lm(Carat ~ Price, data = professorproposes)
+coef(lmPrice)
+lmPrice <- lm(Carat ~ Price, data = professorproposes)
+lmPrice
+```
+
+
+## Linear regression for all the variables
+
+```{r}
+linearMod <- lm(Carat ~ Symmetry, data=df)
+print(linearMod)
+```
+
+
+## bootstrap
+
+```{r}
+set.seed(1)
+head(df)
+dim(df)
+train <- sample(450, 200)
+head(train)
+```
+
+```{r}
+boot.fn <- function(df, index){
+  return(coef(lm(`Carat`~`Price`, data = df, subset = index)))
+}
+
+```
+
+```{r}
+boot.fn(df, 1:450)
+```
+```{r}
+set.seed(1)
+boot.fn(df, sample(450, 450, replace = T))
+```
+
+
+
+
+
+

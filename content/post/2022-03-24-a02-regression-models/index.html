@@ -1,0 +1,631 @@
+---
+title: 'A02: Regression Models'
+author: R package build
+date: '2022-03-24'
+slug: a02-regression-models
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>##Loading and prepaping the data</p>
+<pre class="r"><code>library(pacman)</code></pre>
+<pre><code>## Warning: package &#39;pacman&#39; was built under R version 4.1.3</code></pre>
+<pre class="r"><code>library(magrittr)
+library(psych)</code></pre>
+<pre><code>## Warning: package &#39;psych&#39; was built under R version 4.1.3</code></pre>
+<pre class="r"><code>library(RColorBrewer)
+library(tidyverse)</code></pre>
+<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x ggplot2::%+%()     masks psych::%+%()
+## x ggplot2::alpha()   masks psych::alpha()
+## x tidyr::extract()   masks magrittr::extract()
+## x dplyr::filter()    masks stats::filter()
+## x dplyr::lag()       masks stats::lag()
+## x purrr::set_names() masks magrittr::set_names()</code></pre>
+<pre class="r"><code>library(boot)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;boot&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:psych&#39;:
+## 
+##     logit</code></pre>
+<pre class="r"><code>library(patchwork)</code></pre>
+<pre class="r"><code>professorproposes &lt;- read_csv(&quot;https://raw.githubusercontent.com/csanford2020/professor_propose/main/Professor_Proposes_Data.csv&quot;)</code></pre>
+<pre><code>## Rows: 441 Columns: 9</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (7): Colour, Clarity, Cut, Certification, Polish, Symmetry, Price
+## dbl (2): Carat, Wholesaler</code></pre>
+<pre><code>## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>names(professorproposes)</code></pre>
+<pre><code>## [1] &quot;Carat&quot;         &quot;Colour&quot;        &quot;Clarity&quot;       &quot;Cut&quot;          
+## [5] &quot;Certification&quot; &quot;Polish&quot;        &quot;Symmetry&quot;      &quot;Price&quot;        
+## [9] &quot;Wholesaler&quot;</code></pre>
+<pre class="r"><code>summary(professorproposes)</code></pre>
+<pre><code>##      Carat           Colour            Clarity              Cut           
+##  Min.   :0.0900   Length:441         Length:441         Length:441        
+##  1st Qu.:0.3000   Class :character   Class :character   Class :character  
+##  Median :0.8100   Mode  :character   Mode  :character   Mode  :character  
+##  Mean   :0.6693                                                           
+##  3rd Qu.:1.0100                                                           
+##  Max.   :1.5800                                                           
+##  NA&#39;s   :1                                                                
+##  Certification         Polish            Symmetry            Price          
+##  Length:441         Length:441         Length:441         Length:441        
+##  Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                             
+##                                                                             
+##                                                                             
+##                                                                             
+##    Wholesaler   
+##  Min.   :1.000  
+##  1st Qu.:2.000  
+##  Median :2.000  
+##  Mean   :2.318  
+##  3rd Qu.:3.000  
+##  Max.   :3.000  
+##  NA&#39;s   :1</code></pre>
+<pre class="r"><code>df &lt;- professorproposes %&gt;%
+  as_tibble() %&gt;%
+  print()</code></pre>
+<pre><code>## # A tibble: 441 x 9
+##    Carat Colour Clarity Cut   Certification Polish Symmetry Price  Wholesaler
+##    &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;       &lt;dbl&gt;
+##  1  0.92 I      SI2     G     AGS           V      V        $3,000          1
+##  2  0.92 I      SI2     V     AGS           G      G        $3,000          1
+##  3  0.82 F      SI2     I     GIA           X      X        $3,004          1
+##  4  0.81 G      SI1     I     GIA           X      V        $3,004          1
+##  5  0.9  J      VS2     V     GIA           V      V        $3,006          1
+##  6  0.87 F      SI2     I     AGS           G      V        $3,007          1
+##  7  0.8  D      SI2     I     GIA           V      V        $3,008          1
+##  8  0.84 F      SI1     G     GIA           V      V        $3,010          1
+##  9  0.8  D      SI2     V     GIA           V      V        $3,012          1
+## 10  0.8  D      SI2     V     GIA           V      X        $3,012          1
+## # ... with 431 more rows</code></pre>
+<pre class="r"><code>summary(df)</code></pre>
+<pre><code>##      Carat           Colour            Clarity              Cut           
+##  Min.   :0.0900   Length:441         Length:441         Length:441        
+##  1st Qu.:0.3000   Class :character   Class :character   Class :character  
+##  Median :0.8100   Mode  :character   Mode  :character   Mode  :character  
+##  Mean   :0.6693                                                           
+##  3rd Qu.:1.0100                                                           
+##  Max.   :1.5800                                                           
+##  NA&#39;s   :1                                                                
+##  Certification         Polish            Symmetry            Price          
+##  Length:441         Length:441         Length:441         Length:441        
+##  Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                             
+##                                                                             
+##                                                                             
+##                                                                             
+##    Wholesaler   
+##  Min.   :1.000  
+##  1st Qu.:2.000  
+##  Median :2.000  
+##  Mean   :2.318  
+##  3rd Qu.:3.000  
+##  Max.   :3.000  
+##  NA&#39;s   :1</code></pre>
+<div id="frequencies-of-the-variables" class="section level2">
+<h2>Frequencies of the variables</h2>
+<pre class="r"><code>df %&gt;% count(Cut)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   Cut       n
+##   &lt;chr&gt; &lt;int&gt;
+## 1 F        59
+## 2 G        49
+## 3 I        86
+## 4 V        97
+## 5 X       149
+## 6 &lt;NA&gt;      1</code></pre>
+<pre class="r"><code>cut &lt;- df %&gt;%
+  ggplot() +
+  geom_bar(aes(Cut, fill = Cut)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = &quot;none&quot;
+  )
+df %&gt;% count(Clarity)</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    Clarity     n
+##    &lt;chr&gt;   &lt;int&gt;
+##  1 I1         82
+##  2 I2         28
+##  3 SI1       116
+##  4 SI2       110
+##  5 SI3        26
+##  6 VS1        30
+##  7 VS2        41
+##  8 VVS1        2
+##  9 VVS2        5
+## 10 &lt;NA&gt;        1</code></pre>
+<pre class="r"><code>clarity &lt;- df %&gt;%
+  ggplot() +
+  geom_bar(aes(Clarity, fill = Clarity)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = &quot;none&quot;
+  )
+df %&gt;% count(Certification)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   Certification     n
+##   &lt;chr&gt;         &lt;int&gt;
+## 1 AGS              12
+## 2 DOW               1
+## 3 EGL             119
+## 4 GIA             265
+## 5 IGI              43
+## 6 &lt;NA&gt;              1</code></pre>
+<pre class="r"><code>certification &lt;- df %&gt;%
+  ggplot() +
+  geom_bar(aes(Certification, fill = Certification)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = &quot;none&quot;
+  )
+df %&gt;% count(Polish)</code></pre>
+<pre><code>## # A tibble: 7 x 2
+##   Polish     n
+##   &lt;chr&gt;  &lt;int&gt;
+## 1 F          5
+## 2 G        165
+## 3 I          5
+## 4 v          1
+## 5 V        203
+## 6 X         61
+## 7 &lt;NA&gt;       1</code></pre>
+<pre class="r"><code>polish &lt;- df %&gt;%
+  ggplot() +
+  geom_bar(aes(Polish, fill = Polish)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = &quot;none&quot;
+  )
+df %&gt;% count(Symmetry)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   Symmetry     n
+##   &lt;chr&gt;    &lt;int&gt;
+## 1 F           21
+## 2 G          157
+## 3 I            5
+## 4 V          206
+## 5 X           51
+## 6 &lt;NA&gt;         1</code></pre>
+<pre class="r"><code>symmetry &lt;- df %&gt;%
+  ggplot() +
+  geom_bar(aes(Symmetry, fill = Symmetry)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = &quot;none&quot;
+  )
+cut + clarity + certification + polish + symmetry</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+## Comparing the variables with Price</p>
+<pre class="r"><code>carat &lt;- ggplot(data = df, 
+       mapping = aes(x = Carat, y = Price,
+                     colour = Wholesaler)) +
+  geom_point() 
+color &lt;- ggplot (df, aes(x = Colour, y = Price)) +
+  geom_boxplot()
+cut &lt;- ggplot (df, aes(x = Cut, y = Price)) +
+  geom_boxplot()
+clarity &lt;- ggplot (df, aes(x = Clarity, y = Price)) +
+  geom_boxplot()
+certification &lt;- ggplot (df, aes(x = Certification, y = Price)) +
+  geom_boxplot()
+polish &lt;- ggplot (df, aes(x = Polish, y = Price)) +
+  geom_boxplot()
+symmetry &lt;- ggplot (df, aes(x = Symmetry, y = Price)) +
+  geom_boxplot()
+ carat + cut + color + clarity + certification + polish + symmetry </code></pre>
+<pre><code>## Warning: Removed 1 rows containing missing values (geom_point).</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="based-off-the-graphs-the-carat-size-of-the-diamond-and-the-color-primariliy-impacts-the-prize-of-the-diamond" class="section level2">
+<h2>based off the graphs the carat size of the diamond and the color primariliy impacts the prize of the diamond</h2>
+</div>
+<div id="variables-that-effect-the-carat" class="section level2">
+<h2>variables that effect the Carat</h2>
+<pre class="r"><code>cut &lt;- ggplot (df, aes(x = Cut, y = Carat)) +
+  geom_boxplot()
+color &lt;- ggplot (df, aes(x = Colour, y = Carat)) +
+  geom_boxplot()
+clarity &lt;- ggplot (df, aes(x = Clarity, y = Carat)) +
+  geom_boxplot()
+certification &lt;- ggplot (df, aes(x = Certification, y = Carat)) +
+  geom_boxplot()
+polish &lt;- ggplot (df, aes(x = Polish, y = Carat)) +
+  geom_boxplot()
+symmetry &lt;- ggplot (df, aes(x = Symmetry, y = Carat)) +
+  geom_boxplot()
+cut +  color + clarity + certification + polish + symmetry </code></pre>
+<pre><code>## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+# no variables have an effect of carat
+## Variables that effect Color of diamond</p>
+<pre class="r"><code>cut &lt;- ggplot (df, aes(x = Carat, y = Colour)) +
+  geom_boxplot()
+color &lt;- ggplot (df, aes(x = Cut, y = Colour)) +
+  geom_boxplot()
+clarity &lt;- ggplot (df, aes(x = Clarity, y = Colour)) +
+  geom_boxplot()
+certification &lt;- ggplot (df, aes(x = Certification, y = Colour)) +
+  geom_boxplot()
+polish &lt;- ggplot (df, aes(x = Polish, y = Colour)) +
+  geom_boxplot()
+symmetry &lt;- ggplot (df, aes(x = Symmetry, y = Colour)) +
+  geom_boxplot()
+carat+ color + clarity + certification + polish + symmetry </code></pre>
+<pre><code>## Warning: Removed 1 rows containing missing values (geom_point).</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+# cut and carat seems to effect the color of the diamond so I will use the carat in the linear model</p>
+</div>
+<div id="linear-regression" class="section level2">
+<h2>linear regression</h2>
+<pre class="r"><code>lmPrice &lt;- lm(Carat ~ Price, data = professorproposes)
+coef(lmPrice)</code></pre>
+<pre><code>##   (Intercept)   Price$1,892   Price$1,918   Price$1,929   Price$1,966 
+##  1.000000e+00  6.000000e-02 -8.596135e-15  1.000000e-02  4.000000e-02 
+##   Price$1,985   Price$1,988  Price$160.00  Price$180.00  Price$190.00 
+##  5.000000e-02  2.300000e-01 -9.000000e-01 -8.990909e-01 -9.020000e-01 
+##   Price$2,031   Price$2,035   Price$2,045   Price$2,049   Price$2,065 
+##  1.800000e-01  2.000000e-02 -1.914211e-15  2.289383e-15  5.000000e-02 
+##   Price$2,070   Price$2,100   Price$2,101   Price$2,128   Price$2,149 
+## -3.813388e-15  2.000000e-02 -4.420488e-15  4.733512e-15  1.000000e-02 
+##   Price$2,156   Price$2,162   Price$2,168   Price$2,170   Price$2,192 
+##  1.000000e-02  4.000000e-02 -1.344852e-15 -8.892399e-15  1.000000e-02 
+##   Price$2,195   Price$2,213   Price$2,226   Price$2,228   Price$2,243 
+##  1.000000e-01  2.000000e-02 -3.349171e-16 -4.354453e-15 -1.527171e-15 
+##   Price$2,252   Price$2,263   Price$2,288   Price$2,292   Price$2,301 
+##  1.000000e-02  2.100000e-01  1.682678e-17  1.600000e-01  1.700000e-01 
+##   Price$2,306   Price$2,308   Price$2,310   Price$2,316   Price$2,321 
+## -4.760885e-15  4.000000e-02 -2.186760e-15 -3.968947e-15  1.000000e-02 
+##   Price$2,330   Price$2,333   Price$2,338   Price$2,351   Price$2,359 
+##  9.000000e-02  2.000000e-02  5.000000e-02  1.000000e-01  1.683344e-15 
+##   Price$2,360   Price$2,363   Price$2,364   Price$2,367   Price$2,368 
+##  6.000000e-02  1.000000e-02  1.988316e-15  3.000000e-02  1.500000e-01 
+##   Price$2,380   Price$2,382   Price$2,386   Price$2,390   Price$2,397 
+## -4.097729e-15  1.000000e-02  7.000000e-02  4.000000e-02  2.500000e-01 
+##   Price$2,413   Price$2,427   Price$2,437   Price$2,438   Price$2,446 
+##  5.000000e-02  9.000000e-02  1.400000e-01  1.100000e-01  2.100000e-01 
+##   Price$2,451   Price$2,452   Price$2,467   Price$2,476   Price$2,486 
+##  3.000000e-02 -2.094299e-15  1.500000e-01  1.000000e-02 -9.762906e-16 
+##   Price$2,493   Price$2,495   Price$2,511   Price$2,516   Price$2,565 
+##  1.200000e-01  1.000000e-02  1.500000e-02  2.200000e-01  2.000000e-01 
+##   Price$2,574   Price$2,584   Price$2,586   Price$2,591   Price$2,600 
+##  1.000000e-01  1.600000e-01  1.250000e-01  5.866527e-16  1.000000e-01 
+##   Price$2,601   Price$2,607   Price$2,617   Price$2,620   Price$2,625 
+##  2.000000e-02  3.300000e-01  1.000000e-01  5.800000e-01  1.750000e-02 
+##   Price$2,629   Price$2,640   Price$2,651   Price$2,654   Price$2,655 
+##  2.000000e-02  1.000000e-02  1.000000e-02  1.000000e-02 -2.604206e-15 
+##   Price$2,660   Price$2,668   Price$2,678   Price$2,682   Price$2,689 
+##  6.176219e-16  1.000000e-02 -2.938145e-15 -2.253536e-15  7.000000e-02 
+##   Price$2,692   Price$2,693   Price$2,704   Price$2,714   Price$2,716 
+##  2.333333e-02  5.000000e-02  4.100000e-01  1.600000e-01  1.000000e-02 
+##   Price$2,730   Price$2,745   Price$2,757   Price$2,765   Price$2,770 
+## -4.715958e-16  2.000000e-02  1.000000e-02  1.200000e-01  7.000000e-02 
+##   Price$2,772   Price$2,775   Price$2,779   Price$2,780   Price$3,000 
+##  4.666667e-02  1.600000e-01  8.653739e-16  9.061252e-16 -8.000000e-02 
+##   Price$3,004   Price$3,006   Price$3,007   Price$3,008   Price$3,010 
+## -1.850000e-01 -1.000000e-01 -1.300000e-01 -2.000000e-01 -1.600000e-01 
+##   Price$3,012   Price$3,014   Price$3,015   Price$3,022   Price$3,023 
+## -2.000000e-01 -1.600000e-01 -1.800000e-01 -2.000000e-01 -9.000000e-02 
+##   Price$3,027   Price$3,028   Price$3,029   Price$3,031   Price$3,035 
+## -1.900000e-01 -1.000000e-01 -1.900000e-01 -1.966667e-01 -2.000000e-01 
+##   Price$3,036   Price$3,038   Price$3,041   Price$3,042   Price$3,043 
+## -1.900000e-01 -9.000000e-02 -1.700000e-01 -1.200000e-01 -1.000000e-01 
+##   Price$3,044   Price$3,049   Price$3,051   Price$3,053   Price$3,056 
+## -1.400000e-01 -1.900000e-01 -1.633333e-01 -1.950000e-01 -1.000000e-01 
+##   Price$3,057   Price$3,059   Price$3,062   Price$3,064   Price$3,067 
+## -1.900000e-01 -2.000000e-01 -2.000000e-01 -1.500000e-01 -2.000000e-01 
+##   Price$3,069   Price$3,071   Price$3,072   Price$3,079   Price$3,080 
+## -1.000000e-01 -2.000000e-01 -1.800000e-01 -1.900000e-01 -1.000000e-01 
+##   Price$3,081   Price$3,082   Price$3,083   Price$3,084   Price$3,085 
+## -1.000000e-01  3.000000e-02  2.100000e-01  4.000000e-02  5.000000e-03 
+##   Price$3,086   Price$3,089   Price$3,091   Price$3,093   Price$3,098 
+## -9.500000e-02 -1.000000e-02 -8.000000e-02  1.150000e-01  1.000000e-02 
+##   Price$3,101   Price$3,102   Price$3,105   Price$3,107   Price$3,108 
+## -7.705247e-15  1.000000e-02 -5.084116e-15  1.000000e-02  9.166667e-02 
+##   Price$3,111   Price$3,112   Price$3,114   Price$3,118   Price$3,119 
+##  1.000000e-02  1.300000e-01 -1.199171e-14  1.000000e-02  2.000000e-02 
+##   Price$3,122   Price$3,124   Price$3,125   Price$3,126   Price$3,127 
+##  1.100000e-01  1.150000e-01  1.300000e-01  6.347910e-16 -3.678259e-15 
+##   Price$3,130   Price$3,135   Price$3,136   Price$3,137   Price$3,138 
+##  2.000000e-02  3.333333e-03 -2.805529e-15  1.250000e-01  4.000000e-02 
+##   Price$3,139   Price$3,140   Price$3,141   Price$3,142   Price$3,145 
+##  1.000000e-02  1.500000e-01  3.000000e-02  4.000000e-02  1.000000e-02 
+##  Price$320.00  Price$330.00  Price$340.00  Price$360.00  Price$372.00 
+## -7.950000e-01 -8.050000e-01 -7.833333e-01 -7.720000e-01 -7.000000e-01 
+##  Price$404.00  Price$439.00  Price$466.00  Price$468.00  Price$476.00 
+## -7.700000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 
+##  Price$490.00  Price$493.00  Price$504.00  Price$519.00  Price$520.00 
+## -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 
+##  Price$531.00  Price$544.00  Price$547.00  Price$559.00  Price$594.00 
+## -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.300000e-01 
+##  Price$658.00  Price$665.00 
+## -7.200000e-01 -7.700000e-01</code></pre>
+<pre class="r"><code>lmPrice &lt;- lm(Carat ~ Price, data = professorproposes)
+lmPrice</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Carat ~ Price, data = professorproposes)
+## 
+## Coefficients:
+##  (Intercept)   Price$1,892   Price$1,918   Price$1,929   Price$1,966  
+##    1.000e+00     6.000e-02    -8.596e-15     1.000e-02     4.000e-02  
+##  Price$1,985   Price$1,988  Price$160.00  Price$180.00  Price$190.00  
+##    5.000e-02     2.300e-01    -9.000e-01    -8.991e-01    -9.020e-01  
+##  Price$2,031   Price$2,035   Price$2,045   Price$2,049   Price$2,065  
+##    1.800e-01     2.000e-02    -1.914e-15     2.289e-15     5.000e-02  
+##  Price$2,070   Price$2,100   Price$2,101   Price$2,128   Price$2,149  
+##   -3.813e-15     2.000e-02    -4.420e-15     4.734e-15     1.000e-02  
+##  Price$2,156   Price$2,162   Price$2,168   Price$2,170   Price$2,192  
+##    1.000e-02     4.000e-02    -1.345e-15    -8.892e-15     1.000e-02  
+##  Price$2,195   Price$2,213   Price$2,226   Price$2,228   Price$2,243  
+##    1.000e-01     2.000e-02    -3.349e-16    -4.354e-15    -1.527e-15  
+##  Price$2,252   Price$2,263   Price$2,288   Price$2,292   Price$2,301  
+##    1.000e-02     2.100e-01     1.683e-17     1.600e-01     1.700e-01  
+##  Price$2,306   Price$2,308   Price$2,310   Price$2,316   Price$2,321  
+##   -4.761e-15     4.000e-02    -2.187e-15    -3.969e-15     1.000e-02  
+##  Price$2,330   Price$2,333   Price$2,338   Price$2,351   Price$2,359  
+##    9.000e-02     2.000e-02     5.000e-02     1.000e-01     1.683e-15  
+##  Price$2,360   Price$2,363   Price$2,364   Price$2,367   Price$2,368  
+##    6.000e-02     1.000e-02     1.988e-15     3.000e-02     1.500e-01  
+##  Price$2,380   Price$2,382   Price$2,386   Price$2,390   Price$2,397  
+##   -4.098e-15     1.000e-02     7.000e-02     4.000e-02     2.500e-01  
+##  Price$2,413   Price$2,427   Price$2,437   Price$2,438   Price$2,446  
+##    5.000e-02     9.000e-02     1.400e-01     1.100e-01     2.100e-01  
+##  Price$2,451   Price$2,452   Price$2,467   Price$2,476   Price$2,486  
+##    3.000e-02    -2.094e-15     1.500e-01     1.000e-02    -9.763e-16  
+##  Price$2,493   Price$2,495   Price$2,511   Price$2,516   Price$2,565  
+##    1.200e-01     1.000e-02     1.500e-02     2.200e-01     2.000e-01  
+##  Price$2,574   Price$2,584   Price$2,586   Price$2,591   Price$2,600  
+##    1.000e-01     1.600e-01     1.250e-01     5.867e-16     1.000e-01  
+##  Price$2,601   Price$2,607   Price$2,617   Price$2,620   Price$2,625  
+##    2.000e-02     3.300e-01     1.000e-01     5.800e-01     1.750e-02  
+##  Price$2,629   Price$2,640   Price$2,651   Price$2,654   Price$2,655  
+##    2.000e-02     1.000e-02     1.000e-02     1.000e-02    -2.604e-15  
+##  Price$2,660   Price$2,668   Price$2,678   Price$2,682   Price$2,689  
+##    6.176e-16     1.000e-02    -2.938e-15    -2.254e-15     7.000e-02  
+##  Price$2,692   Price$2,693   Price$2,704   Price$2,714   Price$2,716  
+##    2.333e-02     5.000e-02     4.100e-01     1.600e-01     1.000e-02  
+##  Price$2,730   Price$2,745   Price$2,757   Price$2,765   Price$2,770  
+##   -4.716e-16     2.000e-02     1.000e-02     1.200e-01     7.000e-02  
+##  Price$2,772   Price$2,775   Price$2,779   Price$2,780   Price$3,000  
+##    4.667e-02     1.600e-01     8.654e-16     9.061e-16    -8.000e-02  
+##  Price$3,004   Price$3,006   Price$3,007   Price$3,008   Price$3,010  
+##   -1.850e-01    -1.000e-01    -1.300e-01    -2.000e-01    -1.600e-01  
+##  Price$3,012   Price$3,014   Price$3,015   Price$3,022   Price$3,023  
+##   -2.000e-01    -1.600e-01    -1.800e-01    -2.000e-01    -9.000e-02  
+##  Price$3,027   Price$3,028   Price$3,029   Price$3,031   Price$3,035  
+##   -1.900e-01    -1.000e-01    -1.900e-01    -1.967e-01    -2.000e-01  
+##  Price$3,036   Price$3,038   Price$3,041   Price$3,042   Price$3,043  
+##   -1.900e-01    -9.000e-02    -1.700e-01    -1.200e-01    -1.000e-01  
+##  Price$3,044   Price$3,049   Price$3,051   Price$3,053   Price$3,056  
+##   -1.400e-01    -1.900e-01    -1.633e-01    -1.950e-01    -1.000e-01  
+##  Price$3,057   Price$3,059   Price$3,062   Price$3,064   Price$3,067  
+##   -1.900e-01    -2.000e-01    -2.000e-01    -1.500e-01    -2.000e-01  
+##  Price$3,069   Price$3,071   Price$3,072   Price$3,079   Price$3,080  
+##   -1.000e-01    -2.000e-01    -1.800e-01    -1.900e-01    -1.000e-01  
+##  Price$3,081   Price$3,082   Price$3,083   Price$3,084   Price$3,085  
+##   -1.000e-01     3.000e-02     2.100e-01     4.000e-02     5.000e-03  
+##  Price$3,086   Price$3,089   Price$3,091   Price$3,093   Price$3,098  
+##   -9.500e-02    -1.000e-02    -8.000e-02     1.150e-01     1.000e-02  
+##  Price$3,101   Price$3,102   Price$3,105   Price$3,107   Price$3,108  
+##   -7.705e-15     1.000e-02    -5.084e-15     1.000e-02     9.167e-02  
+##  Price$3,111   Price$3,112   Price$3,114   Price$3,118   Price$3,119  
+##    1.000e-02     1.300e-01    -1.199e-14     1.000e-02     2.000e-02  
+##  Price$3,122   Price$3,124   Price$3,125   Price$3,126   Price$3,127  
+##    1.100e-01     1.150e-01     1.300e-01     6.348e-16    -3.678e-15  
+##  Price$3,130   Price$3,135   Price$3,136   Price$3,137   Price$3,138  
+##    2.000e-02     3.333e-03    -2.806e-15     1.250e-01     4.000e-02  
+##  Price$3,139   Price$3,140   Price$3,141   Price$3,142   Price$3,145  
+##    1.000e-02     1.500e-01     3.000e-02     4.000e-02     1.000e-02  
+## Price$320.00  Price$330.00  Price$340.00  Price$360.00  Price$372.00  
+##   -7.950e-01    -8.050e-01    -7.833e-01    -7.720e-01    -7.000e-01  
+## Price$404.00  Price$439.00  Price$466.00  Price$468.00  Price$476.00  
+##   -7.700e-01    -7.000e-01    -7.000e-01    -7.000e-01    -7.000e-01  
+## Price$490.00  Price$493.00  Price$504.00  Price$519.00  Price$520.00  
+##   -7.000e-01    -7.000e-01    -7.000e-01    -7.000e-01    -7.000e-01  
+## Price$531.00  Price$544.00  Price$547.00  Price$559.00  Price$594.00  
+##   -7.000e-01    -7.000e-01    -7.000e-01    -7.000e-01    -7.300e-01  
+## Price$658.00  Price$665.00  
+##   -7.200e-01    -7.700e-01</code></pre>
+</div>
+<div id="linear-regression-for-all-the-variables" class="section level2">
+<h2>Linear regression for all the variables</h2>
+<pre class="r"><code>linearMod &lt;- lm(Carat ~ Symmetry, data=df)
+print(linearMod)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Carat ~ Symmetry, data = df)
+## 
+## Coefficients:
+## (Intercept)    SymmetryG    SymmetryI    SymmetryV    SymmetryX  
+##      1.0714      -0.3215      -0.2534      -0.4971      -0.4473</code></pre>
+</div>
+<div id="bootstrap" class="section level2">
+<h2>bootstrap</h2>
+<pre class="r"><code>set.seed(1)
+head(df)</code></pre>
+<pre><code>## # A tibble: 6 x 9
+##   Carat Colour Clarity Cut   Certification Polish Symmetry Price  Wholesaler
+##   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;       &lt;dbl&gt;
+## 1  0.92 I      SI2     G     AGS           V      V        $3,000          1
+## 2  0.92 I      SI2     V     AGS           G      G        $3,000          1
+## 3  0.82 F      SI2     I     GIA           X      X        $3,004          1
+## 4  0.81 G      SI1     I     GIA           X      V        $3,004          1
+## 5  0.9  J      VS2     V     GIA           V      V        $3,006          1
+## 6  0.87 F      SI2     I     AGS           G      V        $3,007          1</code></pre>
+<pre class="r"><code>dim(df)</code></pre>
+<pre><code>## [1] 441   9</code></pre>
+<pre class="r"><code>train &lt;- sample(450, 200)
+head(train)</code></pre>
+<pre><code>## [1] 324 167 129 418 299 270</code></pre>
+<pre class="r"><code>boot.fn &lt;- function(df, index){
+  return(coef(lm(`Carat`~`Price`, data = df, subset = index)))
+}</code></pre>
+<pre class="r"><code>boot.fn(df, 1:450)</code></pre>
+<pre><code>##   (Intercept)   Price$1,892   Price$1,918   Price$1,929   Price$1,966 
+##  1.000000e+00  6.000000e-02 -8.596135e-15  1.000000e-02  4.000000e-02 
+##   Price$1,985   Price$1,988  Price$160.00  Price$180.00  Price$190.00 
+##  5.000000e-02  2.300000e-01 -9.000000e-01 -8.990909e-01 -9.020000e-01 
+##   Price$2,031   Price$2,035   Price$2,045   Price$2,049   Price$2,065 
+##  1.800000e-01  2.000000e-02 -1.914211e-15  2.289383e-15  5.000000e-02 
+##   Price$2,070   Price$2,100   Price$2,101   Price$2,128   Price$2,149 
+## -3.813388e-15  2.000000e-02 -4.420488e-15  4.733512e-15  1.000000e-02 
+##   Price$2,156   Price$2,162   Price$2,168   Price$2,170   Price$2,192 
+##  1.000000e-02  4.000000e-02 -1.344852e-15 -8.892399e-15  1.000000e-02 
+##   Price$2,195   Price$2,213   Price$2,226   Price$2,228   Price$2,243 
+##  1.000000e-01  2.000000e-02 -3.349171e-16 -4.354453e-15 -1.527171e-15 
+##   Price$2,252   Price$2,263   Price$2,288   Price$2,292   Price$2,301 
+##  1.000000e-02  2.100000e-01  1.682678e-17  1.600000e-01  1.700000e-01 
+##   Price$2,306   Price$2,308   Price$2,310   Price$2,316   Price$2,321 
+## -4.760885e-15  4.000000e-02 -2.186760e-15 -3.968947e-15  1.000000e-02 
+##   Price$2,330   Price$2,333   Price$2,338   Price$2,351   Price$2,359 
+##  9.000000e-02  2.000000e-02  5.000000e-02  1.000000e-01  1.683344e-15 
+##   Price$2,360   Price$2,363   Price$2,364   Price$2,367   Price$2,368 
+##  6.000000e-02  1.000000e-02  1.988316e-15  3.000000e-02  1.500000e-01 
+##   Price$2,380   Price$2,382   Price$2,386   Price$2,390   Price$2,397 
+## -4.097729e-15  1.000000e-02  7.000000e-02  4.000000e-02  2.500000e-01 
+##   Price$2,413   Price$2,427   Price$2,437   Price$2,438   Price$2,446 
+##  5.000000e-02  9.000000e-02  1.400000e-01  1.100000e-01  2.100000e-01 
+##   Price$2,451   Price$2,452   Price$2,467   Price$2,476   Price$2,486 
+##  3.000000e-02 -2.094299e-15  1.500000e-01  1.000000e-02 -9.762906e-16 
+##   Price$2,493   Price$2,495   Price$2,511   Price$2,516   Price$2,565 
+##  1.200000e-01  1.000000e-02  1.500000e-02  2.200000e-01  2.000000e-01 
+##   Price$2,574   Price$2,584   Price$2,586   Price$2,591   Price$2,600 
+##  1.000000e-01  1.600000e-01  1.250000e-01  5.866527e-16  1.000000e-01 
+##   Price$2,601   Price$2,607   Price$2,617   Price$2,620   Price$2,625 
+##  2.000000e-02  3.300000e-01  1.000000e-01  5.800000e-01  1.750000e-02 
+##   Price$2,629   Price$2,640   Price$2,651   Price$2,654   Price$2,655 
+##  2.000000e-02  1.000000e-02  1.000000e-02  1.000000e-02 -2.604206e-15 
+##   Price$2,660   Price$2,668   Price$2,678   Price$2,682   Price$2,689 
+##  6.176219e-16  1.000000e-02 -2.938145e-15 -2.253536e-15  7.000000e-02 
+##   Price$2,692   Price$2,693   Price$2,704   Price$2,714   Price$2,716 
+##  2.333333e-02  5.000000e-02  4.100000e-01  1.600000e-01  1.000000e-02 
+##   Price$2,730   Price$2,745   Price$2,757   Price$2,765   Price$2,770 
+## -4.715958e-16  2.000000e-02  1.000000e-02  1.200000e-01  7.000000e-02 
+##   Price$2,772   Price$2,775   Price$2,779   Price$2,780   Price$3,000 
+##  4.666667e-02  1.600000e-01  8.653739e-16  9.061252e-16 -8.000000e-02 
+##   Price$3,004   Price$3,006   Price$3,007   Price$3,008   Price$3,010 
+## -1.850000e-01 -1.000000e-01 -1.300000e-01 -2.000000e-01 -1.600000e-01 
+##   Price$3,012   Price$3,014   Price$3,015   Price$3,022   Price$3,023 
+## -2.000000e-01 -1.600000e-01 -1.800000e-01 -2.000000e-01 -9.000000e-02 
+##   Price$3,027   Price$3,028   Price$3,029   Price$3,031   Price$3,035 
+## -1.900000e-01 -1.000000e-01 -1.900000e-01 -1.966667e-01 -2.000000e-01 
+##   Price$3,036   Price$3,038   Price$3,041   Price$3,042   Price$3,043 
+## -1.900000e-01 -9.000000e-02 -1.700000e-01 -1.200000e-01 -1.000000e-01 
+##   Price$3,044   Price$3,049   Price$3,051   Price$3,053   Price$3,056 
+## -1.400000e-01 -1.900000e-01 -1.633333e-01 -1.950000e-01 -1.000000e-01 
+##   Price$3,057   Price$3,059   Price$3,062   Price$3,064   Price$3,067 
+## -1.900000e-01 -2.000000e-01 -2.000000e-01 -1.500000e-01 -2.000000e-01 
+##   Price$3,069   Price$3,071   Price$3,072   Price$3,079   Price$3,080 
+## -1.000000e-01 -2.000000e-01 -1.800000e-01 -1.900000e-01 -1.000000e-01 
+##   Price$3,081   Price$3,082   Price$3,083   Price$3,084   Price$3,085 
+## -1.000000e-01  3.000000e-02  2.100000e-01  4.000000e-02  5.000000e-03 
+##   Price$3,086   Price$3,089   Price$3,091   Price$3,093   Price$3,098 
+## -9.500000e-02 -1.000000e-02 -8.000000e-02  1.150000e-01  1.000000e-02 
+##   Price$3,101   Price$3,102   Price$3,105   Price$3,107   Price$3,108 
+## -7.705247e-15  1.000000e-02 -5.084116e-15  1.000000e-02  9.166667e-02 
+##   Price$3,111   Price$3,112   Price$3,114   Price$3,118   Price$3,119 
+##  1.000000e-02  1.300000e-01 -1.199171e-14  1.000000e-02  2.000000e-02 
+##   Price$3,122   Price$3,124   Price$3,125   Price$3,126   Price$3,127 
+##  1.100000e-01  1.150000e-01  1.300000e-01  6.347910e-16 -3.678259e-15 
+##   Price$3,130   Price$3,135   Price$3,136   Price$3,137   Price$3,138 
+##  2.000000e-02  3.333333e-03 -2.805529e-15  1.250000e-01  4.000000e-02 
+##   Price$3,139   Price$3,140   Price$3,141   Price$3,142   Price$3,145 
+##  1.000000e-02  1.500000e-01  3.000000e-02  4.000000e-02  1.000000e-02 
+##  Price$320.00  Price$330.00  Price$340.00  Price$360.00  Price$372.00 
+## -7.950000e-01 -8.050000e-01 -7.833333e-01 -7.720000e-01 -7.000000e-01 
+##  Price$404.00  Price$439.00  Price$466.00  Price$468.00  Price$476.00 
+## -7.700000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 
+##  Price$490.00  Price$493.00  Price$504.00  Price$519.00  Price$520.00 
+## -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 
+##  Price$531.00  Price$544.00  Price$547.00  Price$559.00  Price$594.00 
+## -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.300000e-01 
+##  Price$658.00  Price$665.00 
+## -7.200000e-01 -7.700000e-01</code></pre>
+<pre class="r"><code>set.seed(1)
+boot.fn(df, sample(450, 450, replace = T))</code></pre>
+<pre><code>##   (Intercept)   Price$1,892   Price$1,929   Price$1,966  Price$160.00 
+##  1.000000e+00  6.000000e-02  1.000000e-02  4.000000e-02 -9.050000e-01 
+##  Price$180.00  Price$190.00   Price$2,045   Price$2,049   Price$2,065 
+## -8.990909e-01 -9.000000e-01 -1.113777e-14 -1.132747e-14  5.000000e-02 
+##   Price$2,070   Price$2,101   Price$2,149   Price$2,156   Price$2,162 
+## -2.926158e-16 -1.411954e-14  1.000000e-02  1.000000e-02  4.000000e-02 
+##   Price$2,170   Price$2,192   Price$2,195   Price$2,213   Price$2,226 
+## -1.143603e-14  1.000000e-02  1.000000e-01  2.000000e-02 -9.986688e-15 
+##   Price$2,252   Price$2,288   Price$2,292   Price$2,301   Price$2,316 
+##  1.000000e-02 -1.072450e-14  1.600000e-01  1.700000e-01 -8.932046e-15 
+##   Price$2,321   Price$2,330   Price$2,351   Price$2,359   Price$2,360 
+##  1.000000e-02  9.000000e-02  1.000000e-01 -8.426027e-16  6.000000e-02 
+##   Price$2,363   Price$2,364   Price$2,367   Price$2,380   Price$2,386 
+##  1.000000e-02 -9.431207e-15  3.000000e-02 -6.396947e-15  7.000000e-02 
+##   Price$2,390   Price$2,413   Price$2,427   Price$2,437   Price$2,438 
+##  4.000000e-02  5.000000e-02  9.000000e-02  1.400000e-01  1.100000e-01 
+##   Price$2,451   Price$2,486   Price$2,495   Price$2,511   Price$2,516 
+##  3.000000e-02 -1.746440e-14  1.000000e-02  1.000000e-02  2.200000e-01 
+##   Price$2,565   Price$2,574   Price$2,586   Price$2,591   Price$2,600 
+##  2.000000e-01  1.000000e-01  2.300000e-01 -1.865726e-14  1.000000e-02 
+##   Price$2,601   Price$2,607   Price$2,617   Price$2,620   Price$2,625 
+##  2.000000e-02  3.300000e-01  1.000000e-01  5.800000e-01  1.750000e-02 
+##   Price$2,629   Price$2,654   Price$2,655   Price$2,660   Price$2,682 
+##  2.000000e-02  1.000000e-02 -7.152291e-15 -1.127426e-14 -1.268203e-14 
+##   Price$2,689   Price$2,692   Price$2,704   Price$2,714   Price$2,745 
+##  3.500000e-02  2.600000e-02  4.100000e-01  1.600000e-01  1.500000e-02 
+##   Price$2,757   Price$2,770   Price$2,772   Price$2,775   Price$2,780 
+##  1.000000e-02  7.000000e-02  2.000000e-02  1.600000e-01 -8.632030e-15 
+##   Price$3,000   Price$3,004   Price$3,015   Price$3,022   Price$3,023 
+## -8.000000e-02 -1.800000e-01 -1.800000e-01 -2.000000e-01 -9.000000e-02 
+##   Price$3,028   Price$3,029   Price$3,031   Price$3,035   Price$3,036 
+## -1.000000e-01 -1.900000e-01 -1.950000e-01 -2.000000e-01 -1.900000e-01 
+##   Price$3,041   Price$3,042   Price$3,043   Price$3,044   Price$3,049 
+## -1.700000e-01 -1.200000e-01 -1.000000e-01 -9.000000e-02 -1.900000e-01 
+##   Price$3,051   Price$3,053   Price$3,056   Price$3,057   Price$3,059 
+## -1.500000e-01 -1.966667e-01 -1.000000e-01 -1.900000e-01 -2.000000e-01 
+##   Price$3,062   Price$3,064   Price$3,069   Price$3,071   Price$3,072 
+## -2.000000e-01 -1.000000e-01 -1.000000e-01 -2.000000e-01 -1.800000e-01 
+##   Price$3,079   Price$3,080   Price$3,081   Price$3,082   Price$3,083 
+## -1.900000e-01 -9.604473e-15 -1.000000e-01  3.000000e-02  2.100000e-01 
+##   Price$3,085   Price$3,086   Price$3,089   Price$3,091   Price$3,093 
+##  1.900000e-01 -4.250000e-02  2.000000e-02 -8.000000e-02  1.150000e-01 
+##   Price$3,101   Price$3,107   Price$3,108   Price$3,111   Price$3,112 
+## -2.317210e-14  1.000000e-02  2.750000e-02  1.000000e-02  1.266667e-01 
+##   Price$3,114   Price$3,118   Price$3,122   Price$3,124   Price$3,125 
+## -9.063648e-15  1.000000e-02  1.100000e-01  1.000000e-01  2.600000e-01 
+##   Price$3,127   Price$3,130   Price$3,135   Price$3,136   Price$3,137 
+## -5.111792e-15  2.000000e-02  2.857143e-03 -8.924284e-15  2.300000e-01 
+##   Price$3,138   Price$3,139   Price$3,142   Price$3,145  Price$320.00 
+##  4.000000e-02  1.000000e-02  4.000000e-02  1.000000e-02 -7.900000e-01 
+##  Price$330.00  Price$340.00  Price$360.00  Price$372.00  Price$404.00 
+## -8.125000e-01 -7.850000e-01 -7.700000e-01 -7.000000e-01 -7.700000e-01 
+##  Price$466.00  Price$468.00  Price$476.00  Price$490.00  Price$493.00 
+## -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 
+##  Price$504.00  Price$519.00  Price$520.00  Price$531.00  Price$544.00 
+## -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 -7.000000e-01 
+##  Price$547.00  Price$559.00  Price$594.00  Price$658.00 
+## -7.000000e-01 -7.000000e-01 -7.300000e-01 -7.200000e-01</code></pre>
+</div>
