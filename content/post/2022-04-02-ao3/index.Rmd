@@ -9,14 +9,14 @@ tags: []
 ## Looking at the data sets 
 # train
 ```{r}
-titanic_train <-read_csv("https://raw.githubusercontent.com/csanford2020/website_delete/main/train.csv")
+titanic_train <-read.csv("https://raw.githubusercontent.com/csanford2020/website_delete/main/train.csv")
 str(titanic_train)
 summary(titanic_train)
 head(titanic_train)
 tail(titanic_train)
 ```
 ```{r}
-titanic_test <- read_csv( "https://raw.githubusercontent.com/csanford2020/website_delete/main/test.csv")
+titanic_test <- read.csv( "https://raw.githubusercontent.com/csanford2020/website_delete/main/test.csv")
 str(titanic_test)
 ````
 ```{r}

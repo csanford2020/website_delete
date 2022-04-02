@@ -1,0 +1,664 @@
+---
+title: AO3
+author: ''
+date: '2022-04-02'
+slug: ao3
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="looking-at-the-data-sets" class="section level2">
+<h2>Looking at the data sets</h2>
+</div>
+<div id="train" class="section level1">
+<h1>train</h1>
+<pre class="r"><code>titanic_train &lt;-read.csv(&quot;https://raw.githubusercontent.com/csanford2020/website_delete/main/train.csv&quot;)
+str(titanic_train)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    891 obs. of  12 variables:
+##  $ PassengerId: int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ Survived   : int  0 1 1 1 0 0 0 0 1 1 ...
+##  $ Pclass     : int  3 1 3 1 3 3 1 3 3 2 ...
+##  $ Name       : chr  &quot;Braund, Mr. Owen Harris&quot; &quot;Cumings, Mrs. John Bradley (Florence Briggs Thayer)&quot; &quot;Heikkinen, Miss. Laina&quot; &quot;Futrelle, Mrs. Jacques Heath (Lily May Peel)&quot; ...
+##  $ Sex        : chr  &quot;male&quot; &quot;female&quot; &quot;female&quot; &quot;female&quot; ...
+##  $ Age        : num  22 38 26 35 35 NA 54 2 27 14 ...
+##  $ SibSp      : int  1 1 0 1 0 0 0 3 0 1 ...
+##  $ Parch      : int  0 0 0 0 0 0 0 1 2 0 ...
+##  $ Ticket     : chr  &quot;A/5 21171&quot; &quot;PC 17599&quot; &quot;STON/O2. 3101282&quot; &quot;113803&quot; ...
+##  $ Fare       : num  7.25 71.28 7.92 53.1 8.05 ...
+##  $ Cabin      : chr  &quot;&quot; &quot;C85&quot; &quot;&quot; &quot;C123&quot; ...
+##  $ Embarked   : chr  &quot;S&quot; &quot;C&quot; &quot;S&quot; &quot;S&quot; ...</code></pre>
+<pre class="r"><code>summary(titanic_train)</code></pre>
+<pre><code>##   PassengerId       Survived          Pclass          Name          
+##  Min.   :  1.0   Min.   :0.0000   Min.   :1.000   Length:891        
+##  1st Qu.:223.5   1st Qu.:0.0000   1st Qu.:2.000   Class :character  
+##  Median :446.0   Median :0.0000   Median :3.000   Mode  :character  
+##  Mean   :446.0   Mean   :0.3838   Mean   :2.309                     
+##  3rd Qu.:668.5   3rd Qu.:1.0000   3rd Qu.:3.000                     
+##  Max.   :891.0   Max.   :1.0000   Max.   :3.000                     
+##                                                                     
+##      Sex                 Age            SibSp           Parch       
+##  Length:891         Min.   : 0.42   Min.   :0.000   Min.   :0.0000  
+##  Class :character   1st Qu.:20.12   1st Qu.:0.000   1st Qu.:0.0000  
+##  Mode  :character   Median :28.00   Median :0.000   Median :0.0000  
+##                     Mean   :29.70   Mean   :0.523   Mean   :0.3816  
+##                     3rd Qu.:38.00   3rd Qu.:1.000   3rd Qu.:0.0000  
+##                     Max.   :80.00   Max.   :8.000   Max.   :6.0000  
+##                     NA&#39;s   :177                                     
+##     Ticket               Fare           Cabin             Embarked        
+##  Length:891         Min.   :  0.00   Length:891         Length:891        
+##  Class :character   1st Qu.:  7.91   Class :character   Class :character  
+##  Mode  :character   Median : 14.45   Mode  :character   Mode  :character  
+##                     Mean   : 32.20                                        
+##                     3rd Qu.: 31.00                                        
+##                     Max.   :512.33                                        
+## </code></pre>
+<pre class="r"><code>head(titanic_train)</code></pre>
+<pre><code>##   PassengerId Survived Pclass
+## 1           1        0      3
+## 2           2        1      1
+## 3           3        1      3
+## 4           4        1      1
+## 5           5        0      3
+## 6           6        0      3
+##                                                  Name    Sex Age SibSp Parch
+## 1                             Braund, Mr. Owen Harris   male  22     1     0
+## 2 Cumings, Mrs. John Bradley (Florence Briggs Thayer) female  38     1     0
+## 3                              Heikkinen, Miss. Laina female  26     0     0
+## 4        Futrelle, Mrs. Jacques Heath (Lily May Peel) female  35     1     0
+## 5                            Allen, Mr. William Henry   male  35     0     0
+## 6                                    Moran, Mr. James   male  NA     0     0
+##             Ticket    Fare Cabin Embarked
+## 1        A/5 21171  7.2500              S
+## 2         PC 17599 71.2833   C85        C
+## 3 STON/O2. 3101282  7.9250              S
+## 4           113803 53.1000  C123        S
+## 5           373450  8.0500              S
+## 6           330877  8.4583              Q</code></pre>
+<pre class="r"><code>tail(titanic_train)</code></pre>
+<pre><code>##     PassengerId Survived Pclass                                     Name    Sex
+## 886         886        0      3     Rice, Mrs. William (Margaret Norton) female
+## 887         887        0      2                    Montvila, Rev. Juozas   male
+## 888         888        1      1             Graham, Miss. Margaret Edith female
+## 889         889        0      3 Johnston, Miss. Catherine Helen &quot;Carrie&quot; female
+## 890         890        1      1                    Behr, Mr. Karl Howell   male
+## 891         891        0      3                      Dooley, Mr. Patrick   male
+##     Age SibSp Parch     Ticket   Fare Cabin Embarked
+## 886  39     0     5     382652 29.125              Q
+## 887  27     0     0     211536 13.000              S
+## 888  19     0     0     112053 30.000   B42        S
+## 889  NA     1     2 W./C. 6607 23.450              S
+## 890  26     0     0     111369 30.000  C148        C
+## 891  32     0     0     370376  7.750              Q</code></pre>
+<pre class="r"><code>titanic_test &lt;- read.csv( &quot;https://raw.githubusercontent.com/csanford2020/website_delete/main/test.csv&quot;)
+str(titanic_test)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    418 obs. of  11 variables:
+##  $ PassengerId: int  892 893 894 895 896 897 898 899 900 901 ...
+##  $ Pclass     : int  3 3 2 3 3 3 3 2 3 3 ...
+##  $ Name       : chr  &quot;Kelly, Mr. James&quot; &quot;Wilkes, Mrs. James (Ellen Needs)&quot; &quot;Myles, Mr. Thomas Francis&quot; &quot;Wirz, Mr. Albert&quot; ...
+##  $ Sex        : chr  &quot;male&quot; &quot;female&quot; &quot;male&quot; &quot;male&quot; ...
+##  $ Age        : num  34.5 47 62 27 22 14 30 26 18 21 ...
+##  $ SibSp      : int  0 1 0 0 1 0 0 1 0 2 ...
+##  $ Parch      : int  0 0 0 0 1 0 0 1 0 0 ...
+##  $ Ticket     : chr  &quot;330911&quot; &quot;363272&quot; &quot;240276&quot; &quot;315154&quot; ...
+##  $ Fare       : num  7.83 7 9.69 8.66 12.29 ...
+##  $ Cabin      : chr  &quot;&quot; &quot;&quot; &quot;&quot; &quot;&quot; ...
+##  $ Embarked   : chr  &quot;Q&quot; &quot;S&quot; &quot;Q&quot; &quot;S&quot; ...</code></pre>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.1.3</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+<div id="join-the-data-sets" class="section level1">
+<h1>join the data sets</h1>
+<pre class="r"><code>titanic_train$is_train_set &lt;- TRUE
+titanic_test$is_train_set &lt;- FALSE
+
+tail(titanic_test)</code></pre>
+<pre><code>##     PassengerId Pclass                           Name    Sex  Age SibSp Parch
+## 413        1304      3 Henriksson, Miss. Jenny Lovisa female 28.0     0     0
+## 414        1305      3             Spector, Mr. Woolf   male   NA     0     0
+## 415        1306      1   Oliva y Ocana, Dona. Fermina female 39.0     0     0
+## 416        1307      3   Saether, Mr. Simon Sivertsen   male 38.5     0     0
+## 417        1308      3            Ware, Mr. Frederick   male   NA     0     0
+## 418        1309      3       Peter, Master. Michael J   male   NA     1     1
+##                 Ticket     Fare Cabin Embarked is_train_set
+## 413             347086   7.7750              S        FALSE
+## 414          A.5. 3236   8.0500              S        FALSE
+## 415           PC 17758 108.9000  C105        C        FALSE
+## 416 SOTON/O.Q. 3101262   7.2500              S        FALSE
+## 417             359309   8.0500              S        FALSE
+## 418               2668  22.3583              C        FALSE</code></pre>
+<pre class="r"><code>tail(titanic_train)</code></pre>
+<pre><code>##     PassengerId Survived Pclass                                     Name    Sex
+## 886         886        0      3     Rice, Mrs. William (Margaret Norton) female
+## 887         887        0      2                    Montvila, Rev. Juozas   male
+## 888         888        1      1             Graham, Miss. Margaret Edith female
+## 889         889        0      3 Johnston, Miss. Catherine Helen &quot;Carrie&quot; female
+## 890         890        1      1                    Behr, Mr. Karl Howell   male
+## 891         891        0      3                      Dooley, Mr. Patrick   male
+##     Age SibSp Parch     Ticket   Fare Cabin Embarked is_train_set
+## 886  39     0     5     382652 29.125              Q         TRUE
+## 887  27     0     0     211536 13.000              S         TRUE
+## 888  19     0     0     112053 30.000   B42        S         TRUE
+## 889  NA     1     2 W./C. 6607 23.450              S         TRUE
+## 890  26     0     0     111369 30.000  C148        C         TRUE
+## 891  32     0     0     370376  7.750              Q         TRUE</code></pre>
+</div>
+<div id="checking-equalitly-in-the-data-sets" class="section level1">
+<h1>checking equalitly in the data sets</h1>
+<pre class="r"><code>ncol(titanic_test)</code></pre>
+<pre><code>## [1] 12</code></pre>
+<pre class="r"><code>ncol(titanic_train)</code></pre>
+<pre><code>## [1] 13</code></pre>
+<pre class="r"><code>names(titanic_train)</code></pre>
+<pre><code>##  [1] &quot;PassengerId&quot;  &quot;Survived&quot;     &quot;Pclass&quot;       &quot;Name&quot;         &quot;Sex&quot;         
+##  [6] &quot;Age&quot;          &quot;SibSp&quot;        &quot;Parch&quot;        &quot;Ticket&quot;       &quot;Fare&quot;        
+## [11] &quot;Cabin&quot;        &quot;Embarked&quot;     &quot;is_train_set&quot;</code></pre>
+<pre class="r"><code>names(titanic_test)</code></pre>
+<pre><code>##  [1] &quot;PassengerId&quot;  &quot;Pclass&quot;       &quot;Name&quot;         &quot;Sex&quot;          &quot;Age&quot;         
+##  [6] &quot;SibSp&quot;        &quot;Parch&quot;        &quot;Ticket&quot;       &quot;Fare&quot;         &quot;Cabin&quot;       
+## [11] &quot;Embarked&quot;     &quot;is_train_set&quot;</code></pre>
+</div>
+<div id="add-survived-colum-to-the-test-data-set" class="section level1">
+<h1>Add survived colum to the test data set</h1>
+<pre class="r"><code>titanic_test$Survived &lt;- NA
+sum(is.na(titanic_test$Survived))</code></pre>
+<pre><code>## [1] 418</code></pre>
+<p>#Binding the datasets</p>
+<pre class="r"><code>titanic_full &lt;- rbind(titanic_train, titanic_test)</code></pre>
+<div id="checking-the-bind-dataset" class="section level2">
+<h2>checking the bind dataset</h2>
+<pre class="r"><code>colSums(is.na(titanic_full))</code></pre>
+<pre><code>##  PassengerId     Survived       Pclass         Name          Sex          Age 
+##            0          418            0            0            0          263 
+##        SibSp        Parch       Ticket         Fare        Cabin     Embarked 
+##            0            0            0            1            0            0 
+## is_train_set 
+##            0</code></pre>
+<pre class="r"><code>sum(is.na(subset(titanic_full, is_train_set==FALSE, select=&quot;Survived&quot;)))</code></pre>
+<pre><code>## [1] 418</code></pre>
+</div>
+<div id="checking-fare-imputations" class="section level2">
+<h2>Checking fare imputations</h2>
+<pre class="r"><code>sum(is.na(titanic_full$Fare))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>bp_Fare &lt;- boxplot(titanic_full$Fare)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+# finding the cutoff point of the outlier in fare</p>
+<pre class="r"><code>boxplot(titanic_full$Fare)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code>boxplot.stats(titanic_full$Fare)</code></pre>
+<pre><code>## $stats
+## [1]  0.0000  7.8958 14.4542 31.2750 65.0000
+## 
+## $n
+## [1] 1308
+## 
+## $conf
+## [1] 13.43283 15.47557
+## 
+## $out
+##   [1]  71.2833 263.0000 146.5208  82.1708  76.7292  80.0000  83.4750  73.5000
+##   [9] 263.0000  77.2875 247.5208  73.5000  77.2875  79.2000  66.6000  69.5500
+##  [17]  69.5500 146.5208  69.5500 113.2750  76.2917  90.0000  83.4750  90.0000
+##  [25]  79.2000  86.5000 512.3292  79.6500 153.4625 135.6333  77.9583  78.8500
+##  [33]  91.0792 151.5500 247.5208 151.5500 110.8833 108.9000  83.1583 262.3750
+##  [41] 164.8667 134.5000  69.5500 135.6333 153.4625 133.6500  66.6000 134.5000
+##  [49] 263.0000  75.2500  69.3000 135.6333  82.1708 211.5000 227.5250  73.5000
+##  [57] 120.0000 113.2750  90.0000 120.0000 263.0000  81.8583  89.1042  91.0792
+##  [65]  90.0000  78.2667 151.5500  86.5000 108.9000  93.5000 221.7792 106.4250
+##  [73]  71.0000 106.4250 110.8833 227.5250  79.6500 110.8833  79.6500  79.2000
+##  [81]  78.2667 153.4625  77.9583  69.3000  76.7292  73.5000 113.2750 133.6500
+##  [89]  73.5000 512.3292  76.7292 211.3375 110.8833 227.5250 151.5500 227.5250
+##  [97] 211.3375 512.3292  78.8500 262.3750  71.0000  86.5000 120.0000  77.9583
+## [105] 211.3375  79.2000  69.5500 120.0000  93.5000  80.0000  83.1583  69.5500
+## [113]  89.1042 164.8667  69.5500  83.1583  82.2667 262.3750  76.2917 263.0000
+## [121] 262.3750 262.3750 263.0000 211.5000 211.5000 221.7792  78.8500 221.7792
+## [129]  75.2417 151.5500 262.3750  83.1583 221.7792  83.1583  83.1583 247.5208
+## [137]  69.5500 134.5000 227.5250  73.5000 164.8667 211.5000  71.2833  75.2500
+## [145] 106.4250 134.5000 136.7792  75.2417 136.7792  82.2667  81.8583 151.5500
+## [153]  93.5000 135.6333 146.5208 211.3375  79.2000  69.5500 512.3292  73.5000
+## [161]  69.5500  69.5500 134.5000  81.8583 262.3750  93.5000  79.2000 164.8667
+## [169] 211.5000  90.0000 108.9000</code></pre>
+<pre class="r"><code>fare_upper_wishker &lt;- boxplot.stats(titanic_full$Fare)$stats</code></pre>
+</div>
+</div>
+<div id="filter" class="section level1">
+<h1>filter</h1>
+<pre class="r"><code>fare_outlier_filter &lt;- titanic_full$Fare &lt; fare_upper_wishker</code></pre>
+<pre><code>## Warning in titanic_full$Fare &lt; fare_upper_wishker: longer object length is not a
+## multiple of shorter object length</code></pre>
+<pre class="r"><code>titanic_filtered_with_fare &lt;- titanic_full[fare_outlier_filter,]</code></pre>
+</div>
+<div id="check-filter" class="section level1">
+<h1>check filter</h1>
+<pre class="r"><code>colSums(is.na(titanic_filtered_with_fare))</code></pre>
+<pre><code>##  PassengerId     Survived       Pclass         Name          Sex          Age 
+##            1          200            1            1            1          155 
+##        SibSp        Parch       Ticket         Fare        Cabin     Embarked 
+##            1            1            1            1            1            1 
+## is_train_set 
+##            1</code></pre>
+<pre class="r"><code>titanic_filtered_with_fare_and_without_NA &lt;- titanic_filtered_with_fare %&gt;%
+  select(-Cabin, -Survived, -PassengerId, -Name) %&gt;%
+  drop_na()
+sum(is.na(titanic_filtered_with_fare_and_without_NA))</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="equation-for-fare" class="section level1">
+<h1>equation for fare</h1>
+<pre class="r"><code>fare_equation = &quot;Fare ~ Pclass + Sex + Age + SibSp + Parch + Embarked&quot;</code></pre>
+</div>
+<div id="regression-for-fare" class="section level1">
+<h1>regression for fare</h1>
+<pre class="r"><code>fare_model &lt;- lm(formula = fare_equation, 
+                 data = titanic_filtered_with_fare_and_without_NA)</code></pre>
+<pre class="r"><code>data_with_missing_fare &lt;- titanic_full[is.na(titanic_full$Fare), 
+                           c(&quot;Pclass&quot;, &quot;Sex&quot;, &quot;Age&quot;, &quot;SibSp&quot;, &quot;Parch&quot;, &quot;Embarked&quot;)]</code></pre>
+<pre class="r"><code>fare_prediction &lt;- predict(fare_model, newdata = data_with_missing_fare)
+print(fare_model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = fare_equation, data = titanic_filtered_with_fare_and_without_NA)
+## 
+## Coefficients:
+## (Intercept)       Pclass      Sexmale          Age        SibSp        Parch  
+##    39.46071     -9.76516     -0.32047      0.01324      4.18192      4.45122  
+##   EmbarkedQ    EmbarkedS  
+##    -3.43665     -3.10794</code></pre>
+<pre class="r"><code>print(data_with_missing_fare)</code></pre>
+<pre><code>##      Pclass  Sex  Age SibSp Parch Embarked
+## 1044      3 male 60.5     0     0        S</code></pre>
+<pre class="r"><code>print(fare_prediction)</code></pre>
+<pre><code>##     1044 
+## 7.537936</code></pre>
+<pre class="r"><code>lm(formula = fare_equation, data = titanic_filtered_with_fare_and_without_NA)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = fare_equation, data = titanic_filtered_with_fare_and_without_NA)
+## 
+## Coefficients:
+## (Intercept)       Pclass      Sexmale          Age        SibSp        Parch  
+##    39.46071     -9.76516     -0.32047      0.01324      4.18192      4.45122  
+##   EmbarkedQ    EmbarkedS  
+##    -3.43665     -3.10794</code></pre>
+</div>
+<div id="impute-the-missing-fare-with-the-prediction" class="section level1">
+<h1>Impute the missing fare with the prediction</h1>
+<pre class="r"><code>titanic_full[is.na(titanic_full$Fare), &quot;Fare&quot;] &lt;- fare_prediction
+sum(is.na(titanic_full$Fare))</code></pre>
+<pre><code>## [1] 0</code></pre>
+<div id="embarked-imputation" class="section level2">
+<h2>Embarked Imputation</h2>
+</div>
+</div>
+<div id="prepare" class="section level1">
+<h1>Prepare</h1>
+<pre class="r"><code>titanic_full_cat_casted &lt;- titanic_full %&gt;%
+  mutate(
+    Pclass = as.integer(as.factor(titanic_full$Pclass)),
+    Sex = as.integer(as.factor(titanic_full$Sex)),
+    SibSp = as.integer(as.factor(titanic_full$SibSp)),
+    Parch = as.integer(as.factor(titanic_full$Parch))
+  )
+
+table(titanic_full_cat_casted$Embarked, useNA=&quot;always&quot;) </code></pre>
+<pre><code>## 
+##         C    Q    S &lt;NA&gt; 
+##    2  270  123  914    0</code></pre>
+<pre class="r"><code>library(class)</code></pre>
+<pre><code>## Warning: package &#39;class&#39; was built under R version 4.1.3</code></pre>
+<pre class="r"><code>embarked_label &lt;- na.omit(titanic_full_cat_casted$Embarked)
+unique(embarked_label)</code></pre>
+<pre><code>## [1] &quot;S&quot; &quot;C&quot; &quot;Q&quot; &quot;&quot;</code></pre>
+<pre class="r"><code>length(embarked_label)</code></pre>
+<pre><code>## [1] 1309</code></pre>
+<pre class="r"><code>dim(titanic_full_cat_casted)</code></pre>
+<pre><code>## [1] 1309   13</code></pre>
+<pre class="r"><code># need to drop some rows that has NA in Embarked so the number of rows is equal
+titanic_same_length_with_embarked_label &lt;- subset(x = titanic_full_cat_casted,
+                                                  subset = !is.na (titanic_full_cat_casted$Embarked))
+dim(titanic_same_length_with_embarked_label)</code></pre>
+<pre><code>## [1] 1309   13</code></pre>
+<pre class="r"><code>embarked_knn_train &lt;- titanic_same_length_with_embarked_label %&gt;% 
+                      select(-Cabin, -Age, -Ticket, -Survived, -Name, -Embarked, -is_train_set) 
+
+colSums(is.na(embarked_knn_train))                             </code></pre>
+<pre><code>## PassengerId      Pclass         Sex       SibSp       Parch        Fare 
+##           0           0           0           0           0           0</code></pre>
+<pre class="r"><code>dim(embarked_knn_train)</code></pre>
+<pre><code>## [1] 1309    6</code></pre>
+<pre class="r"><code>length(embarked_label)</code></pre>
+<pre><code>## [1] 1309</code></pre>
+<pre class="r"><code>sum(is.na(embarked_label))</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code># row that has NA in embark for the test
+titanic_embark &lt;- titanic_full_cat_casted[is.na(titanic_full_cat_casted$Embarked),] 
+embarked_test &lt;- titanic_embark %&gt;% 
+  select(-Cabin, -Age, -Ticket, -Survived, -Name, -Embarked, -is_train_set) %&gt;%
+  drop_na()
+
+# should be 2 rows
+dim(embarked_test)</code></pre>
+<pre><code>## [1] 0 6</code></pre>
+<pre class="r"><code>sum(is.na(embarked_test))</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="finding-the-missing-values-in-embarked" class="section level1">
+<h1>finding the missing values in Embarked</h1>
+<pre class="r"><code>embarked_result &lt;- knn(train = embarked_knn_train,
+                       test = embarked_test,
+                       cl = embarked_label,
+                       k=7)
+print(embarked_result)</code></pre>
+<pre><code>## factor(0)
+## Levels:  C Q S</code></pre>
+<pre class="r"><code>titanic_full[is.na(titanic_full$Embarked), &quot;Embarked&quot;] &lt;- embarked_result
+titanic_full_cat_casted[is.na(titanic_full_cat_casted$Embarked), &quot;Embarked&quot;] &lt;- embarked_result
+colSums(is.na(titanic_full)) </code></pre>
+<pre><code>##  PassengerId     Survived       Pclass         Name          Sex          Age 
+##            0          418            0            0            0          263 
+##        SibSp        Parch       Ticket         Fare        Cabin     Embarked 
+##            0            0            0            0            0            0 
+## is_train_set 
+##            0</code></pre>
+<pre class="r"><code>colSums(is.na(titanic_full_cat_casted))</code></pre>
+<pre><code>##  PassengerId     Survived       Pclass         Name          Sex          Age 
+##            0          418            0            0            0          263 
+##        SibSp        Parch       Ticket         Fare        Cabin     Embarked 
+##            0            0            0            0            0            0 
+## is_train_set 
+##            0</code></pre>
+<pre class="r"><code>titanic_full_cat_casted &lt;- titanic_full_cat_casted %&gt;%
+  mutate(Embarked = as.integer(as.factor(Embarked)))</code></pre>
+<div id="cabin-imputation" class="section level2">
+<h2>Cabin Imputation</h2>
+</div>
+</div>
+<div id="prepare-1" class="section level1">
+<h1>prepare</h1>
+<pre class="r"><code>titanic_cabin_label &lt;- str_sub(string = titanic_full_cat_casted$Cabin,  
+                               start = 1, 
+                               end = 1) %&gt;% na.omit()
+length(titanic_cabin_label)</code></pre>
+<pre><code>## [1] 1309</code></pre>
+<pre class="r"><code>titanic_cabin_train &lt;- titanic_full_cat_casted %&gt;%
+  filter(titanic_full_cat_casted$Cabin != is.na(titanic_full_cat_casted$Cabin)) %&gt;%
+  select(PassengerId, Pclass, Sex, SibSp, Parch, Fare, Embarked)
+dim(titanic_cabin_train)</code></pre>
+<pre><code>## [1] 1309    7</code></pre>
+</div>
+<div id="preparing-for-the-test-data-frame" class="section level1">
+<h1>preparing for the test data frame</h1>
+<pre class="r"><code>titanic_cabin_test &lt;- titanic_full_cat_casted %&gt;%
+  filter(is.na(Cabin)) %&gt;%
+  select(PassengerId, Pclass, Sex, SibSp, Parch, Fare, Embarked)
+length(titanic_cabin_label)</code></pre>
+<pre><code>## [1] 1309</code></pre>
+<pre class="r"><code>dim(titanic_cabin_train)</code></pre>
+<pre><code>## [1] 1309    7</code></pre>
+<pre class="r"><code>dim(titanic_cabin_test)</code></pre>
+<pre><code>## [1] 0 7</code></pre>
+<pre class="r"><code>colSums(is.na(titanic_cabin_train))</code></pre>
+<pre><code>## PassengerId      Pclass         Sex       SibSp       Parch        Fare 
+##           0           0           0           0           0           0 
+##    Embarked 
+##           0</code></pre>
+<pre class="r"><code>colSums(is.na(titanic_cabin_test))</code></pre>
+<pre><code>## PassengerId      Pclass         Sex       SibSp       Parch        Fare 
+##           0           0           0           0           0           0 
+##    Embarked 
+##           0</code></pre>
+<pre class="r"><code>sum(is.na(titanic_cabin_label))</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="finding-missing-values-in-cabin" class="section level1">
+<h1>finding missing values in Cabin</h1>
+<pre class="r"><code>cabin_result &lt;- knn(train = titanic_cabin_train,
+                    test = titanic_cabin_test,
+                    cl = titanic_cabin_label, 
+                    k = 7)
+head(cabin_result)</code></pre>
+<pre><code>## factor(0)
+## Levels:  A B C D E F G T</code></pre>
+<pre class="r"><code>titanic_full[is.na(titanic_full$Cabin), &quot;Cabin&quot;] &lt;- cabin_result</code></pre>
+</div>
+<div id="mutate-cabin" class="section level1">
+<h1>mutate cabin</h1>
+<pre class="r"><code>titanic_full &lt;- titanic_full %&gt;%
+  mutate(Cabin = str_sub(string = titanic_full$Cabin,  
+                         start = 1, 
+                         end = 1))
+str(titanic_full)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    1309 obs. of  13 variables:
+##  $ PassengerId : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ Survived    : int  0 1 1 1 0 0 0 0 1 1 ...
+##  $ Pclass      : int  3 1 3 1 3 3 1 3 3 2 ...
+##  $ Name        : chr  &quot;Braund, Mr. Owen Harris&quot; &quot;Cumings, Mrs. John Bradley (Florence Briggs Thayer)&quot; &quot;Heikkinen, Miss. Laina&quot; &quot;Futrelle, Mrs. Jacques Heath (Lily May Peel)&quot; ...
+##  $ Sex         : chr  &quot;male&quot; &quot;female&quot; &quot;female&quot; &quot;female&quot; ...
+##  $ Age         : num  22 38 26 35 35 NA 54 2 27 14 ...
+##  $ SibSp       : int  1 1 0 1 0 0 0 3 0 1 ...
+##  $ Parch       : int  0 0 0 0 0 0 0 1 2 0 ...
+##  $ Ticket      : chr  &quot;A/5 21171&quot; &quot;PC 17599&quot; &quot;STON/O2. 3101282&quot; &quot;113803&quot; ...
+##  $ Fare        : num  7.25 71.28 7.92 53.1 8.05 ...
+##  $ Cabin       : chr  &quot;&quot; &quot;C&quot; &quot;&quot; &quot;C&quot; ...
+##  $ Embarked    : chr  &quot;S&quot; &quot;C&quot; &quot;S&quot; &quot;S&quot; ...
+##  $ is_train_set: logi  TRUE TRUE TRUE TRUE TRUE TRUE ...</code></pre>
+<pre class="r"><code>colSums(is.na(titanic_full))</code></pre>
+<pre><code>##  PassengerId     Survived       Pclass         Name          Sex          Age 
+##            0          418            0            0            0          263 
+##        SibSp        Parch       Ticket         Fare        Cabin     Embarked 
+##            0            0            0            0            0            0 
+## is_train_set 
+##            0</code></pre>
+<div id="age-imputation" class="section level2">
+<h2>Age Imputation</h2>
+</div>
+</div>
+<div id="prep" class="section level1">
+<h1>prep</h1>
+<pre class="r"><code>colSums(is.na(titanic_full))</code></pre>
+<pre><code>##  PassengerId     Survived       Pclass         Name          Sex          Age 
+##            0          418            0            0            0          263 
+##        SibSp        Parch       Ticket         Fare        Cabin     Embarked 
+##            0            0            0            0            0            0 
+## is_train_set 
+##            0</code></pre>
+<pre class="r"><code>bp_Age &lt;- boxplot(titanic_full$Age)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+# filter</p>
+<pre class="r"><code>boxplot.stats(titanic_full$Age)</code></pre>
+<pre><code>## $stats
+## [1]  0.17 21.00 28.00 39.00 66.00
+## 
+## $n
+## [1] 1046
+## 
+## $conf
+## [1] 27.12065 28.87935
+## 
+## $out
+## [1] 71.0 70.5 71.0 80.0 70.0 70.0 74.0 67.0 76.0</code></pre>
+<pre class="r"><code>age_upper_wishker &lt;- boxplot.stats(titanic_full$Fare)$stats[5] 
+age_upper_wishker</code></pre>
+<pre><code>## [1] 65</code></pre>
+<pre class="r"><code>age_outlier_filter &lt;- titanic_full$Age &lt; age_upper_wishker
+titanic_filtered_with_age &lt;- titanic_full[age_outlier_filter,]
+colSums(is.na(titanic_filtered_with_age))</code></pre>
+<pre><code>##  PassengerId     Survived       Pclass         Name          Sex          Age 
+##          263          593          263          263          263          263 
+##        SibSp        Parch       Ticket         Fare        Cabin     Embarked 
+##          263          263          263          263          263          263 
+## is_train_set 
+##          263</code></pre>
+</div>
+<div id="check-filter-1" class="section level1">
+<h1>check filter</h1>
+<pre class="r"><code>titanic_filtered_with_age_and_without_NA &lt;- titanic_filtered_with_age %&gt;%
+  select(-Survived, -PassengerId, -Name) %&gt;%
+  drop_na()
+
+sum(is.na(titanic_filtered_with_age_and_without_NA))</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="find-the-missing-variables" class="section level1">
+<h1>find the missing variables</h1>
+<pre class="r"><code>age_equation = &quot;Age ~ Pclass + Sex + Fare + SibSp + Parch + Embarked + Cabin&quot;
+age_model &lt;- lm(formula = age_equation, 
+                 data = titanic_filtered_with_age_and_without_NA)
+age_model</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = age_equation, data = titanic_filtered_with_age_and_without_NA)
+## 
+## Coefficients:
+## (Intercept)       Pclass      Sexmale         Fare        SibSp        Parch  
+##   56.052292    -5.882412     2.137133     0.005359    -3.194707    -0.645986  
+##   EmbarkedC    EmbarkedQ    EmbarkedS       CabinA       CabinB       CabinC  
+##  -15.299553   -12.176684   -13.304050     3.822685    -0.598616     2.558515  
+##      CabinD       CabinE       CabinF       CabinG       CabinT  
+##    4.680232     2.562740    -7.534418   -10.485127     5.806785</code></pre>
+<pre class="r"><code>data_with_missing_age &lt;- titanic_full[is.na(titanic_full$Age), 
+                           c(&quot;Pclass&quot;, &quot;Sex&quot;, &quot;Fare&quot;, &quot;SibSp&quot;, &quot;Parch&quot;, &quot;Embarked&quot;, &quot;Cabin&quot;)]
+head(data_with_missing_age)</code></pre>
+<pre><code>##    Pclass    Sex    Fare SibSp Parch Embarked Cabin
+## 6       3   male  8.4583     0     0        Q      
+## 18      2   male 13.0000     0     0        S      
+## 20      3 female  7.2250     0     0        C      
+## 27      3   male  7.2250     0     0        C      
+## 29      3 female  7.8792     0     0        Q      
+## 30      3   male  7.8958     0     0        S</code></pre>
+<pre class="r"><code>lm(formula = age_equation, data = titanic_filtered_with_age_and_without_NA)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = age_equation, data = titanic_filtered_with_age_and_without_NA)
+## 
+## Coefficients:
+## (Intercept)       Pclass      Sexmale         Fare        SibSp        Parch  
+##   56.052292    -5.882412     2.137133     0.005359    -3.194707    -0.645986  
+##   EmbarkedC    EmbarkedQ    EmbarkedS       CabinA       CabinB       CabinC  
+##  -15.299553   -12.176684   -13.304050     3.822685    -0.598616     2.558515  
+##      CabinD       CabinE       CabinF       CabinG       CabinT  
+##    4.680232     2.562740    -7.534418   -10.485127     5.806785</code></pre>
+<pre class="r"><code>age_prediction &lt;- predict(age_model, newdata = data_with_missing_age)
+head(age_prediction, n=20)</code></pre>
+<pre><code>##        6       18       20       27       29       30       32       33 
+## 28.41083 33.19022 23.14422 25.28136 26.27060 27.28045 31.86224 26.26991 
+##       37       43       46       47       48       49       56       65 
+## 25.28138 25.28495 27.28128 25.25387 26.26991 18.96940 41.75173 37.15602 
+##       66       77       78       83 
+## 21.48365 27.28045 27.28128 26.27011</code></pre>
+<pre class="r"><code>titanic_full[is.na(titanic_full$Age), &quot;Age&quot;] &lt;- age_prediction
+
+colSums(is.na(titanic_full))</code></pre>
+<pre><code>##  PassengerId     Survived       Pclass         Name          Sex          Age 
+##            0          418            0            0            0            0 
+##        SibSp        Parch       Ticket         Fare        Cabin     Embarked 
+##            0            0            0            0            0            0 
+## is_train_set 
+##            0</code></pre>
+<div id="survived" class="section level2">
+<h2>Survived?</h2>
+<pre class="r"><code>titanic_full %&gt;%
+  summarize_all(n_distinct)</code></pre>
+<pre><code>##   PassengerId Survived Pclass Name Sex Age SibSp Parch Ticket Fare Cabin
+## 1        1309        3      3 1307   2 232     7     8    929  282     9
+##   Embarked is_train_set
+## 1        4            2</code></pre>
+<pre class="r"><code>titanic_full_cat_casted2 &lt;- titanic_full %&gt;%
+  mutate(Pclass = as.factor(Pclass),
+         Sex = as.factor(Sex),
+         SibSp = as.factor(SibSp),
+         Parch = as.factor(Parch),
+         Cabin = as.factor(Cabin),
+         Embarked = as.factor(Embarked)
+  )
+str(titanic_full_cat_casted2)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    1309 obs. of  13 variables:
+##  $ PassengerId : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ Survived    : int  0 1 1 1 0 0 0 0 1 1 ...
+##  $ Pclass      : Factor w/ 3 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;: 3 1 3 1 3 3 1 3 3 2 ...
+##  $ Name        : chr  &quot;Braund, Mr. Owen Harris&quot; &quot;Cumings, Mrs. John Bradley (Florence Briggs Thayer)&quot; &quot;Heikkinen, Miss. Laina&quot; &quot;Futrelle, Mrs. Jacques Heath (Lily May Peel)&quot; ...
+##  $ Sex         : Factor w/ 2 levels &quot;female&quot;,&quot;male&quot;: 2 1 1 1 2 2 2 2 1 1 ...
+##  $ Age         : num  22 38 26 35 35 ...
+##  $ SibSp       : Factor w/ 7 levels &quot;0&quot;,&quot;1&quot;,&quot;2&quot;,&quot;3&quot;,..: 2 2 1 2 1 1 1 4 1 2 ...
+##  $ Parch       : Factor w/ 8 levels &quot;0&quot;,&quot;1&quot;,&quot;2&quot;,&quot;3&quot;,..: 1 1 1 1 1 1 1 2 3 1 ...
+##  $ Ticket      : chr  &quot;A/5 21171&quot; &quot;PC 17599&quot; &quot;STON/O2. 3101282&quot; &quot;113803&quot; ...
+##  $ Fare        : num  7.25 71.28 7.92 53.1 8.05 ...
+##  $ Cabin       : Factor w/ 9 levels &quot;&quot;,&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,..: 1 4 1 4 1 1 6 1 1 1 ...
+##  $ Embarked    : Factor w/ 4 levels &quot;&quot;,&quot;C&quot;,&quot;Q&quot;,&quot;S&quot;: 4 2 4 4 4 3 4 4 4 2 ...
+##  $ is_train_set: logi  TRUE TRUE TRUE TRUE TRUE TRUE ...</code></pre>
+<p>#spilt data frames back into test and train</p>
+<pre class="r"><code>titanic_train_2 &lt;- titanic_full_cat_casted2[titanic_full_cat_casted2$is_train_set == TRUE,]
+titanic_test_2 &lt;- titanic_full_cat_casted2[titanic_full_cat_casted2$is_train_set == FALSE,]
+table(ttr = dim(titanic_train), 
+      ttr2 = dim(titanic_train_2))</code></pre>
+<pre><code>##      ttr2
+## ttr   13 891
+##   13   1   0
+##   891  0   1</code></pre>
+<pre class="r"><code>table(tt = dim(titanic_test),
+      tt2 = dim(titanic_test_2))</code></pre>
+<pre><code>##      tt2
+## tt    13 418
+##   13   1   0
+##   418  0   1</code></pre>
+<pre class="r"><code>sum(is.na(titanic_train_2$Survived))</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>titanic_train_2$Survived &lt;- as.factor(titanic_train_2$Survived)</code></pre>
+</div>
+<div id="prediction" class="section level2">
+<h2>Prediction</h2>
+<pre class="r"><code>survived_equation = &quot;Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Cabin + Embarked&quot;
+survived_formula &lt;- as.formula(survived_equation)
+
+library(&quot;ranger&quot;)</code></pre>
+<pre><code>## Warning: package &#39;ranger&#39; was built under R version 4.1.3</code></pre>
+<pre class="r"><code>titanic_ranger_model &lt;- ranger(formula = survived_formula, 
+                               data = titanic_train_2,
+                               num.trees = 10000,
+                               seed = 99,
+                               classification = TRUE)
+
+titanic_ranger_model</code></pre>
+<pre><code>## Ranger result
+## 
+## Call:
+##  ranger(formula = survived_formula, data = titanic_train_2, num.trees = 10000,      seed = 99, classification = TRUE) 
+## 
+## Type:                             Classification 
+## Number of trees:                  10000 
+## Sample size:                      891 
+## Number of independent variables:  8 
+## Mtry:                             2 
+## Target node size:                 1 
+## Variable importance mode:         none 
+## Splitrule:                        gini 
+## OOB prediction error:             17.28 %</code></pre>
+<pre class="r"><code>titanic_survived &lt;- predict(titanic_ranger_model, data = titanic_test_2)
+str(titanic_survived)</code></pre>
+<pre><code>## List of 5
+##  $ predictions              : Factor w/ 2 levels &quot;0&quot;,&quot;1&quot;: 1 1 1 1 2 1 1 1 2 1 ...
+##  $ num.trees                : num 10000
+##  $ num.independent.variables: num 8
+##  $ num.samples              : int 418
+##  $ treetype                 : chr &quot;Classification&quot;
+##  - attr(*, &quot;class&quot;)= chr &quot;ranger.prediction&quot;</code></pre>
+<pre class="r"><code>PassengerId &lt;- titanic_test_2$PassengerId
+titanic_output &lt;- as.data.frame(PassengerId)
+titanic_output$Survived &lt;- titanic_survived$predictions
+str(titanic_output)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    418 obs. of  2 variables:
+##  $ PassengerId: int  892 893 894 895 896 897 898 899 900 901 ...
+##  $ Survived   : Factor w/ 2 levels &quot;0&quot;,&quot;1&quot;: 1 1 1 1 2 1 1 1 2 1 ...</code></pre>
+</div>
+</div>
