@@ -1,0 +1,29 @@
+---
+title: Logistical Regression
+author: ''
+date: '2022-03-28'
+slug: logistical-regression
+categories: []
+tags: []
+---
+## Install packages 
+```{r}
+library(tidyverse)
+library(openintro)
+library(ggridges)
+library(tidymodels)
+set.seed(1234)
+glimpse(email)
+```
+
+
+```{r}
+email %>% 
+  group_by(spam) %>%
+  
+```
+
+
+
+
+  

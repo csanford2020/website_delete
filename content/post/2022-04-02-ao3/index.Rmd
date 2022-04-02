@@ -1,0 +1,307 @@
+---
+title: AO3
+author: ''
+date: '2022-04-02'
+slug: ao3
+categories: []
+tags: []
+---
+## Looking at the data sets 
+# train
+```{r}
+titanic_train <-read_csv("https://raw.githubusercontent.com/csanford2020/website_delete/main/train.csv")
+str(titanic_train)
+summary(titanic_train)
+head(titanic_train)
+tail(titanic_train)
+```
+```{r}
+titanic_test <- read_csv( "https://raw.githubusercontent.com/csanford2020/website_delete/main/test.csv")
+str(titanic_test)
+````
+```{r}
+library(tidyverse)
+```
+# join the data sets 
+```{r}
+titanic_train$is_train_set <- TRUE
+titanic_test$is_train_set <- FALSE
+
+tail(titanic_test)
+tail(titanic_train)
+````
+# checking equalitly in the data sets 
+```{r}
+ncol(titanic_test)
+ncol(titanic_train)
+names(titanic_train)
+names(titanic_test)
+```
+# Add survived colum to the test data set
+```{r}
+titanic_test$Survived <- NA
+sum(is.na(titanic_test$Survived))
+```
+#Binding the datasets
+```{r}
+titanic_full <- rbind(titanic_train, titanic_test)
+```
+## checking the bind dataset
+```{r}
+colSums(is.na(titanic_full))
+sum(is.na(subset(titanic_full, is_train_set==FALSE, select="Survived")))
+```
+## Checking fare imputations 
+```{r}
+sum(is.na(titanic_full$Fare))
+bp_Fare <- boxplot(titanic_full$Fare)
+```
+# finding the cutoff point of the outlier in fare
+```{r}
+boxplot(titanic_full$Fare)
+boxplot.stats(titanic_full$Fare)
+fare_upper_wishker <- boxplot.stats(titanic_full$Fare)$stats
+```
+# filter 
+```{r}
+fare_outlier_filter <- titanic_full$Fare < fare_upper_wishker
+titanic_filtered_with_fare <- titanic_full[fare_outlier_filter,]
+```
+# check filter
+```{r}
+colSums(is.na(titanic_filtered_with_fare))
+titanic_filtered_with_fare_and_without_NA <- titanic_filtered_with_fare %>%
+  select(-Cabin, -Survived, -PassengerId, -Name) %>%
+  drop_na()
+sum(is.na(titanic_filtered_with_fare_and_without_NA))
+```
+# equation for fare
+```{r}
+fare_equation = "Fare ~ Pclass + Sex + Age + SibSp + Parch + Embarked"
+```
+# regression for fare
+```{r}
+fare_model <- lm(formula = fare_equation, 
+                 data = titanic_filtered_with_fare_and_without_NA)
+```
+```{r}
+data_with_missing_fare <- titanic_full[is.na(titanic_full$Fare), 
+                           c("Pclass", "Sex", "Age", "SibSp", "Parch", "Embarked")]
+```
+```{r}
+fare_prediction <- predict(fare_model, newdata = data_with_missing_fare)
+print(fare_model)
+print(data_with_missing_fare)
+print(fare_prediction)
+```
+```{r}
+lm(formula = fare_equation, data = titanic_filtered_with_fare_and_without_NA)
+```
+#  Impute the missing fare with the prediction
+```{r}
+titanic_full[is.na(titanic_full$Fare), "Fare"] <- fare_prediction
+sum(is.na(titanic_full$Fare))
+```
+## Embarked Imputation
+# Prepare
+```{r}
+titanic_full_cat_casted <- titanic_full %>%
+  mutate(
+    Pclass = as.integer(as.factor(titanic_full$Pclass)),
+    Sex = as.integer(as.factor(titanic_full$Sex)),
+    SibSp = as.integer(as.factor(titanic_full$SibSp)),
+    Parch = as.integer(as.factor(titanic_full$Parch))
+  )
+
+table(titanic_full_cat_casted$Embarked, useNA="always") 
+library(class)
+embarked_label <- na.omit(titanic_full_cat_casted$Embarked)
+unique(embarked_label)
+length(embarked_label)
+dim(titanic_full_cat_casted)
+```
+```{r}
+# need to drop some rows that has NA in Embarked so the number of rows is equal
+titanic_same_length_with_embarked_label <- subset(x = titanic_full_cat_casted,
+                                                  subset = !is.na (titanic_full_cat_casted$Embarked))
+dim(titanic_same_length_with_embarked_label)
+
+
+embarked_knn_train <- titanic_same_length_with_embarked_label %>% 
+                      select(-Cabin, -Age, -Ticket, -Survived, -Name, -Embarked, -is_train_set) 
+
+colSums(is.na(embarked_knn_train))                             
+dim(embarked_knn_train)
+length(embarked_label)
+sum(is.na(embarked_label))
+
+# row that has NA in embark for the test
+titanic_embark <- titanic_full_cat_casted[is.na(titanic_full_cat_casted$Embarked),] 
+embarked_test <- titanic_embark %>% 
+  select(-Cabin, -Age, -Ticket, -Survived, -Name, -Embarked, -is_train_set) %>%
+  drop_na()
+
+# should be 2 rows
+dim(embarked_test)
+sum(is.na(embarked_test))
+```
+# finding the missing values in Embarked 
+```{r}
+embarked_result <- knn(train = embarked_knn_train,
+                       test = embarked_test,
+                       cl = embarked_label,
+                       k=7)
+print(embarked_result)
+```
+```{r}
+titanic_full[is.na(titanic_full$Embarked), "Embarked"] <- embarked_result
+titanic_full_cat_casted[is.na(titanic_full_cat_casted$Embarked), "Embarked"] <- embarked_result
+colSums(is.na(titanic_full)) 
+colSums(is.na(titanic_full_cat_casted))
+```
+```{r}
+titanic_full_cat_casted <- titanic_full_cat_casted %>%
+  mutate(Embarked = as.integer(as.factor(Embarked)))
+```
+## Cabin Imputation
+# prepare
+```{r}
+titanic_cabin_label <- str_sub(string = titanic_full_cat_casted$Cabin,  
+                               start = 1, 
+                               end = 1) %>% na.omit()
+length(titanic_cabin_label)
+titanic_cabin_train <- titanic_full_cat_casted %>%
+  filter(titanic_full_cat_casted$Cabin != is.na(titanic_full_cat_casted$Cabin)) %>%
+  select(PassengerId, Pclass, Sex, SibSp, Parch, Fare, Embarked)
+dim(titanic_cabin_train)
+```
+# preparing for the test data frame
+```{r}
+titanic_cabin_test <- titanic_full_cat_casted %>%
+  filter(is.na(Cabin)) %>%
+  select(PassengerId, Pclass, Sex, SibSp, Parch, Fare, Embarked)
+length(titanic_cabin_label)
+dim(titanic_cabin_train)
+dim(titanic_cabin_test)
+colSums(is.na(titanic_cabin_train))
+colSums(is.na(titanic_cabin_test))
+sum(is.na(titanic_cabin_label))
+```
+# finding missing values in Cabin
+```{r}
+cabin_result <- knn(train = titanic_cabin_train,
+                    test = titanic_cabin_test,
+                    cl = titanic_cabin_label, 
+                    k = 7)
+head(cabin_result)
+titanic_full[is.na(titanic_full$Cabin), "Cabin"] <- cabin_result
+```
+# mutate cabin
+```{r}
+titanic_full <- titanic_full %>%
+  mutate(Cabin = str_sub(string = titanic_full$Cabin,  
+                         start = 1, 
+                         end = 1))
+str(titanic_full)
+colSums(is.na(titanic_full))
+```
+## Age Imputation
+# prep
+```{r}
+colSums(is.na(titanic_full))
+bp_Age <- boxplot(titanic_full$Age)
+```
+# filter
+```{r}
+boxplot.stats(titanic_full$Age)
+age_upper_wishker <- boxplot.stats(titanic_full$Fare)$stats[5] 
+age_upper_wishker
+```
+```{r}
+age_outlier_filter <- titanic_full$Age < age_upper_wishker
+titanic_filtered_with_age <- titanic_full[age_outlier_filter,]
+colSums(is.na(titanic_filtered_with_age))
+```
+# check filter
+```{r}
+titanic_filtered_with_age_and_without_NA <- titanic_filtered_with_age %>%
+  select(-Survived, -PassengerId, -Name) %>%
+  drop_na()
+
+sum(is.na(titanic_filtered_with_age_and_without_NA))
+```
+# find the missing variables 
+```{r}
+age_equation = "Age ~ Pclass + Sex + Fare + SibSp + Parch + Embarked + Cabin"
+age_model <- lm(formula = age_equation, 
+                 data = titanic_filtered_with_age_and_without_NA)
+age_model
+data_with_missing_age <- titanic_full[is.na(titanic_full$Age), 
+                           c("Pclass", "Sex", "Fare", "SibSp", "Parch", "Embarked", "Cabin")]
+head(data_with_missing_age)
+```
+```{r}
+lm(formula = age_equation, data = titanic_filtered_with_age_and_without_NA)
+```
+```{r}
+age_prediction <- predict(age_model, newdata = data_with_missing_age)
+head(age_prediction, n=20)
+```
+```{r}
+titanic_full[is.na(titanic_full$Age), "Age"] <- age_prediction
+
+colSums(is.na(titanic_full))
+```
+## Survived?
+```{r}
+titanic_full %>%
+  summarize_all(n_distinct)
+titanic_full_cat_casted2 <- titanic_full %>%
+  mutate(Pclass = as.factor(Pclass),
+         Sex = as.factor(Sex),
+         SibSp = as.factor(SibSp),
+         Parch = as.factor(Parch),
+         Cabin = as.factor(Cabin),
+         Embarked = as.factor(Embarked)
+  )
+str(titanic_full_cat_casted2)
+```
+#spilt data frames back into test and train
+```{r}
+titanic_train_2 <- titanic_full_cat_casted2[titanic_full_cat_casted2$is_train_set == TRUE,]
+titanic_test_2 <- titanic_full_cat_casted2[titanic_full_cat_casted2$is_train_set == FALSE,]
+table(ttr = dim(titanic_train), 
+      ttr2 = dim(titanic_train_2))
+table(tt = dim(titanic_test),
+      tt2 = dim(titanic_test_2))
+sum(is.na(titanic_train_2$Survived))
+titanic_train_2$Survived <- as.factor(titanic_train_2$Survived)
+```
+## Prediction 
+```{r}
+survived_equation = "Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Cabin + Embarked"
+survived_formula <- as.formula(survived_equation)
+
+library("ranger")
+
+titanic_ranger_model <- ranger(formula = survived_formula, 
+                               data = titanic_train_2,
+                               num.trees = 10000,
+                               seed = 99,
+                               classification = TRUE)
+
+titanic_ranger_model
+```
+```{r}
+titanic_survived <- predict(titanic_ranger_model, data = titanic_test_2)
+str(titanic_survived)
+
+
+PassengerId <- titanic_test_2$PassengerId
+titanic_output <- as.data.frame(PassengerId)
+titanic_output$Survived <- titanic_survived$predictions
+str(titanic_output)
+
+```
+
+
