@@ -1,0 +1,229 @@
+---
+title: Professor proposes 4/4
+author: ''
+date: '2022-04-04'
+slug: professor-proposes-4-4
+categories: []
+tags: []
+---
+## Executive Summary 
+A Professor is shopping for an engagement ring. He has enlisted your help to ensure he is getting a diamond in his price range for a good value. He has already collected data from wholesalers on440  different  diamonds for you. Thus, given you  information  on  prices  of  these diamonds along with their characteristic features such as color, clarity, 
+cut and carat (famous 4Cs) besides polish, symmetry and certification. These characteristics are considered important features in determining the price, but he was not sure how important are each of these features really are. He has identified a diamond which interests him. He wants you to build a regression model using the acquired data to estimate the price of the diamond he is interested in. He wants to ensure that the price he pays for the diamond is fair. 
+
+## Issues and Challenges
+Immediate challenge facing the professor is how to price 
+the diamond of his interest given its characteristics. 
+Advanced multiple regression is a potential approach to 
+solve  the  pricing  challenge.  It  involves  the  use  of 
+regular  metric  variables  like  Carat  over  a  specified 
+range and grouping of data using dummy variables for cut, 
+color, clarity and others. 
+
+##Library 
+```{r}
+library(pacman)
+library(magrittr)
+library(psych)
+library(RColorBrewer)
+library(tidyverse)
+library(boot)
+library(patchwork)
+```
+## The data 
+```{r}
+professorproposes <- read.csv("https://raw.githubusercontent.com/csanford2020/professor_propose/main/Professor_Proposes_Data.csv")
+
+```
+##Exploratory Data Analysis
+#Price
+
+```{r}
+factor(professorproposes$Price)
+table(professorproposes$Price)
+```
+```{r}
+professorproposes %>% count(Price)
+symmetry <- professorproposes %>%
+  ggplot() +
+  geom_bar(aes(Symmetry, fill = Price)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+print(Price)
+```
+ 
+ 
+The Price ranged from 160 to 3145 and had bimodal distribution. The diamonds appear to be in two clusters less than $1000 and higher than $1000.
+
+#Carat
+```{r}
+professorproposes %>% count(Carat)
+Carat <- professorproposes %>%
+  ggplot() +
+  geom_bar(aes(Carat, fill = Carat)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+Carat
+```
+```{r}
+factor(professorproposes$Carat)
+table(professorproposes$Carat)
+```
+ 
+The Carat ranged from 0.09 to 1.58 and had bimodal distribution. The diamonds appear to be in two clusters 0.09 to 0.30 and 0.81 to 1.58 carats.
+
+#Clarity 
+```{r}
+professorproposes %>% count(Clarity)
+clarity <- professorproposes %>%
+  ggplot() +
+  geom_bar(aes(Clarity, fill = Clarity)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+clarity
+```
+#Color
+```{r}
+professorproposes %>% count(Colour)
+Colour <- professorproposes %>%
+  ggplot() +
+  geom_bar(aes(Colour, fill = Colour)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+Colour
+```
+# Cut
+```{r}
+professorproposes %>% count(Cut)
+Cut <- professorproposes %>%
+  ggplot() +
+  geom_bar(aes(Cut, fill = Cut)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+Cut
+```
+#Certification
+```{r}
+professorproposes %>% count(Certification)
+Certification<- professorproposes %>%
+  ggplot() +
+  geom_bar(aes(Certification, fill = Certification)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+Certification
+```
+#Polish
+```{r}
+professorproposes %>% count(Polish)
+Polish <- professorproposes %>%
+  ggplot() +
+  geom_bar(aes(Polish, fill = Polish)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+Polish
+```
+# Symmertry 
+```{r}
+professorproposes %>% count(Symmetry)
+Symmetry <- professorproposes %>%
+  ggplot() +
+  geom_bar(aes(Symmetry, fill = Symmetry)) +
+  theme(
+    axis.title.x = element_blank(),
+    legend.position = "none"
+  )
+Symmetry
+```
+## Bivariate Analysis
+#Comparing the variables with Price
+```{r}
+carat <- ggplot(data = professorproposes, 
+       mapping = aes(x = Carat, y = Price,
+                     colour = Wholesaler)) +
+  geom_point() 
+carat
+
+```
+
+```{r}
+colour <- ggplot (professorproposes, aes(x = Colour, y = Price)) +
+  geom_boxplot()
+colour
+```
+```{r}
+cut <- ggplot (professorproposes, aes(x = Cut, y = Price)) +
+  geom_boxplot()
+cut
+```
+```{r}
+certification <- ggplot (professorproposes, aes(x = Certification, y = Price)) +
+  geom_boxplot()
+certification
+```
+```{r}
+clarity <- ggplot (professorproposes, aes(x = Clarity, y = Price)) +
+  geom_boxplot()
+clarity
+```
+```{r}
+polish <- ggplot (professorproposes, aes(x = Polish, y = Price)) +
+  geom_boxplot()
+polish
+```
+```{r}
+symmetry <- ggplot (professorproposes, aes(x = Symmetry, y = Price)) +
+  geom_boxplot()
+symmetry
+```
+# Regression with Carat and price
+Price seems to be heavily correlated with Carat size 
+```{r}
+linearMod <- lm(Carat ~ Price, data=professorproposes)
+print(linearMod)
+```
+
+## bootstrap 
+```{r}
+set.seed(1)
+head(professorproposes)
+dim(professorproposes)
+train <- sample(450, 200)
+head(train)
+```
+```{r}
+boot.fn <- function(professorproposes, index){
+  return(coef(lm(`Carat`~`Price`, data = professorproposes, subset = index)))
+}
+boot.fn
+```
+## Observations and Comments  
+1. Carat, Clarity and Color were the primary 
+determinant of the price. 
+2. It was followed by Cut, Certification and Polish. 
+3. Symmetry did not contribute in determining prices. 
+4. The price quoted to the Professor for the diamond 
+appeared to be on higher side but it did not 
+include the cost of retailing and ring itself. 
+These were the prices of diamond alone. 
+5. This model is valid only for the diamonds within 
+the range of observed value only. 
+6. Clarity could have been treated as nominal variable 
+but in that case the regression coefficient would 
+have been lower. 
+7. Professor is going to buy diamond only once and not 
+regularly. Considering the one-time expense 
+Professor can offer a price of around $2900 - $3000 
+to buy the diamond ring. 

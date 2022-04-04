@@ -1,0 +1,8 @@
+---
+title: Professor Proposes Solution
+author: ''
+date: '2022-04-04'
+slug: professor-proposes-solution
+categories: []
+tags: []
+---
